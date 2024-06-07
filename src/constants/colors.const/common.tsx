@@ -1,0 +1,18 @@
+export const common = {
+    ERROR : '#F23356',
+    BORDER_FORM_MAIN : '#5C5C5C',
+    BORDER_ICON : '#FFFFFF',
+    ICON_BT_SUB : '#3C94FF',
+    ICON_BT_MAIN : '#246BFD',
+    ICON_STD_MAIN : '#6A6A6A',
+    ICON_BT_BIG : '#D9D9D9',
+    ICON_BT_WARNING : '#F23356',
+    TEXT_SPE_MAIN : '#246BFD',
+    TEXT_SPE_SUB : '#478FF1',
+    TEXT_STD_SUB : '#B9B9B9',
+    TEXT_STD_FORM : '#6A6A6A',
+    TEXT_STD_WARNING : '#E7436D',
+    TEXT_BT_0BG : '#989898',
+    TEXT_BT_MAIN : '#FFFFFF',
+}
+
