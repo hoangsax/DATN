@@ -26,7 +26,7 @@ const ButtonIcon = (props: ButtonProps) => {
         },
         button: {
             backgroundColor: bg,
-            padding: verticalScale(17),
+            padding     : verticalScale(17),
             borderRadius: radius? radius : 100,
             alignItems: 'center'
         },

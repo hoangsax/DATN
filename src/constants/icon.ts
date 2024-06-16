@@ -25,5 +25,6 @@ export const icons = {
     BACK: require('@/assets/icons/back').xml,
     FORWARD: require('@/assets/icons/forward').xml,
     HIDE: require('@/assets/icons/hide').xml,
+    PASSWORD: require('@/assets/icons/password').xml
     
 }

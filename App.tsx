@@ -1,29 +1,25 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import store from '@/store'
-import { Provider } from 'react-redux'
-import { AuthNav } from '@/navigations';
-
-
+import React from "react";
+import { StatusBar, StyleSheet, Text, View } from "react-native";
+import store from "@/store";
+import client from "@/client";
+import { Provider } from "react-redux";
+import { AuthNav } from "@/navigations";
+import { ApolloProvider } from "@apollo/react-hooks";
 export default function App() {
-
-  return (
-    <View style={styles.container}>
-      <Text>
-        Change code in the editor and watch it change on your phone! Save to get a shareable url.
-      </Text>
-    </View>
-    // <Provider store={store}>
-    //   <AuthNav />
-    // </Provider>
-  );
+    return (
+        <Provider store={store}>
+            <ApolloProvider client={client}>
+                <AuthNav />
+            </ApolloProvider>
+        </Provider>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    container: {
+        flex: 1,
+        backgroundColor: "#fff",
+        alignItems: "center",
+        justifyContent: "center",
+    },
 });

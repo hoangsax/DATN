@@ -1,3 +1,3 @@
 import { AuthNav } from '@/navigations/authStack'
-
-export {AuthNav};
+import { BotNav } from './bottomNav';
+export {AuthNav, BotNav};
