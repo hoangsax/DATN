@@ -1,22 +1,21 @@
-import React from "react";
-import { View, TextInput, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView } from "react-native";
 import { fontSize, horizontalScale, verticalScale } from "@/utils";
 import { SvgXml } from "react-native-svg";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/store";
-interface InputFormProps {
-    licon?: any;
+import { icons } from "@/constants";
+interface InputPasswordProps {
     value?: string;
     backgroundColor?: string;
-    placeholder?: string;
     maxLength?: number;
-    onChangeText?: (text: string) => void;
+    onChangeText?: (value: string) => void;
 }
 
-export const InputForm = (props: InputFormProps) => {
+export const InputPassword = (props: InputPasswordProps) => {
     const colors = useSelector((state: RootState) => state.theme.palette);
-    const { licon, value, backgroundColor, placeholder, maxLength, onChangeText } = props;
-
+    const { value, backgroundColor, maxLength, onChangeText } = props;
+    const [hidden, setHidden] = useState(true);
     return (
         <View
             style={[
@@ -27,15 +26,19 @@ export const InputForm = (props: InputFormProps) => {
                 },
             ]}
         >
-            {licon && <SvgXml xml={licon} height={18} width={18} />}
+            <SvgXml xml={icons.PASSWORD} height={18} width={18} />
             <TextInput
                 style={[styles.input, { color: colors.TEXT_STD_MAIN }]}
                 value={value}
-                placeholder={placeholder}
+                placeholder={"Password"}
                 placeholderTextColor={colors.TEXT_STD_SUB}
-                maxLength={maxLength}
+                secureTextEntry={hidden}
                 onChangeText={onChangeText}
+                maxLength={maxLength? maxLength : 12}
             />
+            <TouchableOpacity onPress={() => setHidden((prev) => !prev)}>
+                <SvgXml xml={icons.HIDE} height={18} width={18} />
+            </TouchableOpacity>
         </View>
     );
 };
@@ -62,4 +65,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default InputForm;
+export default InputPassword;

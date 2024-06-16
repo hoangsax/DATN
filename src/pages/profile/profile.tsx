@@ -1,8 +1,9 @@
 // src/screens/SettingsScreen.tsx
+import { Button } from '@/components/button';
 import { RootState } from '@/store';
 import { logout } from '@/store/auth';
 import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 const ProfileScreen = () => {
@@ -12,7 +13,7 @@ const ProfileScreen = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Profile Screen</Text>
-            <Button title='Logout' onPress={() => dispatch(logout())} />
+            <Button.Primary title='Logout' onPress={() => dispatch(logout())} />
         </View>
     );
 };

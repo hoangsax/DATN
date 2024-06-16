@@ -3,8 +3,11 @@ import { screens } from "./screen.const";
 import { stacks } from "./stack.const";
 import { icons } from "./icon";
 import { defStyles } from "./style";
-
+import { images } from "./images";
+import { weight } from "./font.const";
 
 export { DarkTheme, LightTheme, ThemeTypes };
 export { screens, icons, stacks };
 export { defStyles };
+export { images };
+export { weight };
