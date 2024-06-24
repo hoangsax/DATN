@@ -75,6 +75,14 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
+        logtemp: (state) =>{
+            state.isLogin = true;
+            state.user = {
+                id: "123",
+                email: "123",
+                name: "123",
+            };
+        },
         logout: (state) => {
             state.isLogin = false;
             state.user = null;
@@ -103,6 +111,6 @@ const authSlice = createSlice({
     },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, logtemp } = authSlice.actions;
 export { login };
 export default authSlice.reducer;

@@ -6,7 +6,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-const ProfileScreen = () => {
+export const ProfileScreen = () => {
     const auth = useSelector((state: RootState) => state.auth)
     const dispatch = useDispatch()
 

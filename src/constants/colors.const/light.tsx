@@ -1,6 +1,7 @@
 export const light = {
     MAIN : '#F9FBFF',
-    BG_BT_MAIN : '#006EFF',
+    BG_MAIN : '#02C277',
+    BG_BT_MAIN : '#02C277',
     BG_BTI_MAIN : '#3C94FF',
     BG_BTI_SUB : '#E5F0FF',
     BG_TAB_OFF : '#F4F6F9',
