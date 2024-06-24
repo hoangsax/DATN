@@ -1,10 +1,8 @@
 import { icons, screens } from "@/constants";
 import { stacks } from "@/constants";
 import { heights } from "@/constants/heights.const";
-import { HomeScreen, Project, Invest, Rent, ProfileScreen } from "@/pages";
-import { HEIGHT_SCREEN, verticalScale } from "@/utils";
+import { HomeScreen, Waitingrelease, Invest, Rent, ProfileScreen } from "@/pages";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Dimensions } from "react-native";
 import { SvgXml } from "react-native-svg";
 const BotNav = () => {
     const Tab = createBottomTabNavigator();
@@ -32,7 +30,7 @@ const BotNav = () => {
             />
             <Tab.Screen
                 name={screens.PROJECT}
-                component={Project}
+                component={Waitingrelease}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
@@ -44,7 +42,7 @@ const BotNav = () => {
 
             <Tab.Screen
                 name={screens.INVEST}
-                component={Project}
+                component={Waitingrelease}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
@@ -56,7 +54,7 @@ const BotNav = () => {
 
             <Tab.Screen
                 name={screens.RENT}
-                component={Project}
+                component={Waitingrelease}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
