@@ -4,7 +4,6 @@ import { heights } from "@/constants/heights.const";
 import { HomeScreen, WaitingRelease, Rent, ProfileScreen, MarketPlace } from "@/pages";
 import { HEIGHT_SCREEN, verticalScale } from "@/utils";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Dimensions } from "react-native";
 import { SvgXml } from "react-native-svg";
 const BotNav = () => {
     const Tab = createBottomTabNavigator();
