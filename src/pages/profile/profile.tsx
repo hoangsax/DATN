@@ -185,13 +185,7 @@ export const ProfileScreen = () => {
                         </TouchableHighlight>
                         <TouchableHighlight
                             underlayColor={Colors.BG_CARD_MAIN}
-                            style={[
-                                styles.option_button,
-                                {
-                                    borderBottomLeftRadius: 10,
-                                    borderBottomRightRadius: 10,
-                                },
-                            ]}
+                            style={styles.option_button}
                             onPress={() => {}}
                         >
                             <UIText
@@ -202,13 +196,7 @@ export const ProfileScreen = () => {
                         </TouchableHighlight>
                         <TouchableHighlight
                             underlayColor={Colors.BG_CARD_MAIN}
-                            style={[
-                                styles.option_button,
-                                {
-                                    borderBottomLeftRadius: 10,
-                                    borderBottomRightRadius: 10,
-                                },
-                            ]}
+                            style={styles.option_button}
                             onPress={() => {}}
                         >
                             <UIText
