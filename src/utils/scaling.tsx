@@ -1,13 +1,14 @@
 import { Dimensions, Platform, PixelRatio } from 'react-native'
+import { getStatusBarHeight } from 'react-native-status-bar-height';
 
 const { width, height } = Dimensions.get('window')
 const [shortDimension, longDimension] = width < height ? [width, height] : [height, width]
-
+const Bheight = getStatusBarHeight();
 const WIDTH_SCREEN = width
 const HEIGHT_SCREEN = height
 
 const guidelineBaseWidth = 375
-const guidelineBaseHeight = 812
+const guidelineBaseHeight = 686 + Bheight
 
 const horizontalScale = (size: number) => (shortDimension / guidelineBaseWidth) * size
 

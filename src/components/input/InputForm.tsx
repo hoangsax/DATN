@@ -27,7 +27,7 @@ export const InputForm = (props: InputFormProps) => {
                 },
             ]}
         >
-            {licon && <SvgXml xml={licon} height={18} width={18} />}
+            {licon && <SvgXml xml={licon} height={horizontalScale(18)} width={horizontalScale(18)} />}
             <TextInput
                 style={[styles.input, { color: colors.TEXT_STD_MAIN }]}
                 value={value}
@@ -43,8 +43,7 @@ export const InputForm = (props: InputFormProps) => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: "row",
-        height: 51,
-        paddingVertical: verticalScale(15),
+        paddingVertical: verticalScale(10),
         paddingHorizontal: verticalScale(20),
         borderWidth: 1,
         borderRadius: 10,
@@ -55,7 +54,6 @@ const styles = StyleSheet.create({
     input: {
         flex: 8,
         fontSize: fontSize(14.33),
-        height: verticalScale(51),
     },
     icon: {
         flex: 1,

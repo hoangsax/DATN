@@ -10887,6 +10887,11 @@ react-native-expo-localstorage@^1.0.3:
   resolved "https://registry.yarnpkg.com/react-native-expo-localstorage/-/react-native-expo-localstorage-1.0.3.tgz#abe205d8e020d8120eed640730c8050d0c3b09e1"
   integrity sha512-KpHVXOwHm6MhVdJBHJcYacrEx0UJSZXrGLmm+HqmHeuTHsgfVHwpyo2X4KX7MWiEA+4Gz66tQE+9N7NPIzRhhg==
 
+react-native-fast-image@^8.6.3:
+  version "8.6.3"
+  resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.6.3.tgz#6edc3f9190092a909d636d93eecbcc54a8822255"
+  integrity sha512-Sdw4ESidXCXOmQ9EcYguNY2swyoWmx53kym2zRsvi+VeFCHEdkO+WG1DK+6W81juot40bbfLNhkc63QnWtesNg==
+
 react-native-reanimated@~3.10.1:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-3.10.1.tgz#3c37d1100bbba0065df39c96aab0c1ff1b50c0fa"

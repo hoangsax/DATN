@@ -7,38 +7,45 @@ import { LoginScreen } from "@/pages/login";
 import { screens } from "@/constants";
 import { BotNav } from "@/navigations/bottomNav";
 import { View } from "react-native";
-import { getStatusBarHeight } from "react-native-status-bar-height";
 import { StatusBar } from "expo-status-bar";
+import { heights } from "@/constants/heights.const";
+import { HEIGHT_SCREEN } from "@/utils";
 // import { selectIsLoggedIn } from "@/selector";
 
 const AuthNav = () => {
     const auth = useSelector((state: RootState) => state.auth);
     const theme = useSelector((state: RootState) => state.theme);
     const Stack = createNativeStackNavigator();
-    const Bheight = getStatusBarHeight();
-
+    const Bheight = heights.STATUS_BAR;
     return (
         <NavigationContainer>
-            <View
-                style={{ height: Bheight, backgroundColor: theme.palette.MAIN }}
-            >
-                <StatusBar style="auto" />
+                <View
+                    style={{
+                        height: Bheight,
+                        backgroundColor: theme.palette.BG_MAIN,
+                    }}
+                >
+                    <StatusBar style="auto" />
+                </View>
+                <View style={{ flex: HEIGHT_SCREEN - Bheight }}>
+                    <Stack.Navigator
+                        screenOptions={{
+                            headerShown: false,
+                        }}
+                    >
+                        {auth.isLogin ? (
+                            <Stack.Screen
+                                name={screens.HOME}
+                                component={BotNav}
+                            />
+                        ) : (
+                            <Stack.Screen
+                                name={screens.LOGIN}
+                                component={LoginScreen}
+                            />
+                        )}
+                    </Stack.Navigator>
             </View>
-            <Stack.Navigator
-                screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: 'transparent' },
-                }}
-            >
-                {auth.isLogin ? (
-                    <Stack.Screen name={screens.HOME} component={BotNav} />
-                ) : (
-                    <Stack.Screen
-                        name={screens.LOGIN}
-                        component={LoginScreen}
-                    />
-                )}
-            </Stack.Navigator>
         </NavigationContainer>
     );
 };

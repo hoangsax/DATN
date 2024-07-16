@@ -7,4 +7,7 @@ export const screens = {
     PROFILE: 'Profile',
     SEARCH: 'Search',
     ADD_PROPERTY: 'AddProperty',
+    PROJECT: 'Project',
+    RENT: 'Rent',
+    INVEST: 'Invest'
 }

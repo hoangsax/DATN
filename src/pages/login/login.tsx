@@ -3,11 +3,12 @@ import { InputForm, InputPassword } from "@/components/input";
 import { UIText } from "@/components/text";
 import { icons, images, weight } from "@/constants";
 import { AppDispatch, RootState } from "@/store";
-import { login } from "@/store/auth";
+import { logtemp } from "@/store/auth";
 import { useAppDispatch } from "@/store/hooks";
 import { horizontalScale, verticalScale } from "@/utils";
 import React, { useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
+import { SvgXml } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
 
 export const LoginScreen = () => {
@@ -15,34 +16,33 @@ export const LoginScreen = () => {
     const [password, setPassword] = useState("password1");
     const colors = useSelector((state: RootState) => state.theme.palette);
     const auth = useSelector((state: RootState) => state.auth);
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
     const handleOnPress = () => {
-        dispatch(login({email, password}))
+        dispatch(logtemp());
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.imgWrapper}>
-                <Image source={images.logo} style={styles.img} />
+                <SvgXml xml={icons.LOGO} style={styles.img} />
             </View>
             <View style={styles.contentWrapper}>
-                <UIText value="Login" fWeight={weight.semibold} fSize={18} />
                 <View style={styles.formGroup}>
                     <UIText
-                        value="Username"
+                        value="Email"
                         fWeight={weight.semibold}
                         fSize={14}
                     />
                     <InputForm
-                        licon={icons.USER}
+                        licon={icons.MAIL}
                         value={email}
-                        placeholder="Username"
+                        placeholder="Email"
                         onChangeText={(value) => setEmail(value)}
                     />
                 </View>
                 <View style={styles.formGroup}>
                     <UIText
-                        value="Password"
+                        value="Mật khẩu"
                         fWeight={weight.semibold}
                         fSize={14}
                     />
@@ -59,9 +59,40 @@ export const LoginScreen = () => {
                         <UIText value={auth.error} color={colors.ERROR} />
                     )}
                     <Button.Primary
-                        title="Login"
+                        title="Tiếp tục"
                         fill={true}
                         onPress={handleOnPress}
+                    />
+                </View>
+                <View style={styles.or}>
+                    <View
+                        style={{
+                            backgroundColor: colors.BORDER_FORM_MAIN,
+                            height: 1,
+                            flex: 4,
+                        }}
+                    ></View>
+                    <View
+                        style={{
+                            height: "auto",
+                            flex: 2,
+                            alignItems: "center",
+                        }}
+                    >
+                        <UIText value="Hoặc" fWeight={weight.semibold} />
+                    </View>
+                    <View
+                        style={{
+                            backgroundColor: colors.BORDER_FORM_MAIN,
+                            height: 1,
+                            flex: 4,
+                        }}
+                    ></View>
+                </View>
+                <View style={styles.otherMethods}>
+                    <Button.Login
+                        title="Tiếp tục với Google"
+                        icon={icons.GOOGLE}
                     />
                 </View>
             </View>
@@ -77,10 +108,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: verticalScale(50),
     },
-    imgWrapper: {
-        width: horizontalScale(200),
-        height: horizontalScale(124.24),
-    },
+    imgWrapper: {},
     img: {
         width: "100%",
         height: "100%",
@@ -97,6 +125,16 @@ const styles = StyleSheet.create({
     buttonGroup: {
         gap: verticalScale(10),
         width: "100%",
+        alignItems: "center",
+    },
+    otherMethods: {
+        gap: verticalScale(10),
+        width: "100%",
+    },
+    or: {
+        marginVertical: verticalScale(20),
+        flexDirection: "row",
+        justifyContent: "center",
         alignItems: "center",
     },
 });

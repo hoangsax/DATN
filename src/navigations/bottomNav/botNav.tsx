@@ -1,19 +1,81 @@
-import { icons } from "@/constants";
+import { icons, screens } from "@/constants";
 import { stacks } from "@/constants";
-import { HomeScreen } from "@/pages/home";
-import ProfileScreen from "@/pages/profile/profile";
+import { heights } from "@/constants/heights.const";
+import { HomeScreen, Waitingrelease, Invest, Rent, ProfileScreen } from "@/pages";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SvgXml } from "react-native-svg";
 const BotNav = () => {
-
-    const Tab = createBottomTabNavigator()
+    const Tab = createBottomTabNavigator();
 
     return (
-        <Tab.Navigator screenOptions={{headerShown: false, tabBarShowLabel: false}}>
-            <Tab.Screen name={stacks.HOMESTACK} component={HomeScreen} options={{tabBarIcon: ({focused}) => <SvgXml xml={focused? icons.LOCATION_ACTIVE : icons.LOCATION}/>}} />
-            <Tab.Screen name={stacks.PROFILESTACK} component={ProfileScreen} options={{tabBarIcon: ({focused}) => <SvgXml xml={focused? icons.PROFILE_ACTIVE : icons.PROFILE} />}} />
+        <Tab.Navigator
+            screenOptions={{
+                headerShown: false,
+                tabBarShowLabel: false,
+                tabBarStyle: {
+                    height: heights.BOTNAV
+                },
+            }}
+        >
+            <Tab.Screen
+                name={stacks.HOMESTACK}
+                component={HomeScreen}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <SvgXml
+                            xml={focused ? icons.HOME_ACTIVE : icons.HOME}
+                        />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name={screens.PROJECT}
+                component={Waitingrelease}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <SvgXml
+                            xml={focused ? icons.PROJECT_ACTIVE : icons.PROJECT}
+                        />
+                    ),
+                }}
+            />
+
+            <Tab.Screen
+                name={screens.INVEST}
+                component={Waitingrelease}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <SvgXml
+                            xml={focused ? icons.INVEST_ACTIVE : icons.INVEST}
+                        />
+                    ),
+                }}
+            />
+
+            <Tab.Screen
+                name={screens.RENT}
+                component={Waitingrelease}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <SvgXml
+                            xml={focused ? icons.PROJECT_ACTIVE : icons.PROJECT}
+                        />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name={stacks.PROFILESTACK}
+                component={ProfileScreen}
+                options={{
+                    tabBarIcon: ({ focused }) => (
+                        <SvgXml
+                            xml={focused ? icons.PROFILE_ACTIVE : icons.PROFILE}
+                        />
+                    ),
+                }}
+            />
         </Tab.Navigator>
-    )
-}
+    );
+};
 
 export default BotNav;
