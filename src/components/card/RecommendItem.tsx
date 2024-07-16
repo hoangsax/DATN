@@ -10,7 +10,7 @@ import {
   horizontalScale,
   verticalScale
 } from "@/utils";
-import { RecommendItemDataProps } from '../utils/types';
+import { RecommendItemDataProps } from '../../constants/types';
 import { UIText } from '@/components';
 
 const width = horizontalScale(140)

@@ -5,7 +5,7 @@ import {
   horizontalScale,
   // Icon
 } from "@/utils";
-import type { HotProjectDataProps } from '../utils/types';
+import type { HotProjectDataProps } from '../../../constants/types';
 import { images } from '@/constants';
 import { UIText } from '@/components';
 

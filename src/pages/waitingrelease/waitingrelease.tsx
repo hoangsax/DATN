@@ -1,17 +1,18 @@
 import { Button } from "@/components/button";
-import { LongCard, REData } from "@/components/card/LongCard";
+import { LongCard } from "@/components/card/LongCard";
 import { UIText } from "@/components/text";
 import { weight } from "@/constants";
 import { heights } from "@/constants/heights.const";
 import { RootState } from "@/store";
 import {
     HEIGHT_SCREEN,
-    Sorting,
+    SelectOptions,
+    SelectableOptions,
     fontSize,
     horizontalScale,
     verticalScale,
 } from "@/utils";
-import React, { useEffect, useRef, useState } from "react";
+import React, { Ref, useEffect, useRef, useState } from "react";
 import {
     FlatList,
     LayoutChangeEvent,
@@ -20,86 +21,113 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { RealEstateItemData } from "@/constants/types";
+import client, { GET_REDATA, GET_TOKEN_INFO } from "@/client";
+import { login } from "@/store/auth";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchReData } from "@/store/redata";
 
 interface SectionBarProps {
     tabOn: number;
     setTabOn: (num: number) => void;
+    setRef: () => void;
 }
-
-const SectionBar = ({ tabOn, setTabOn }: SectionBarProps) => {
-    const fSize = fontSize(14);
-
+const TABLIST_HEIGHT = verticalScale(45)
+const fSize = fontSize(14);
+const SectionBar = ({ tabOn, setTabOn, setRef }: SectionBarProps) => {
+    const Colors = useAppSelector((state) => state.theme.palette);
+    const tabOnColor = Colors.BG_CARD_MAIN;
+    const textColorOn = Colors.TEXT_STD_MAIN
+    const textColorOff = Colors.MAIN
     return (
-        <View style={[styles.tabList]}>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.listContent}
-            >
+        <View
+            style={[
+                styles.tabList,
+                {
+                    backgroundColor: Colors.BG_TAB_FIELD,
+                    justifyContent: "center",
+                },
+            ]}
+        >
+            <View style={styles.listContent}>
                 <TouchableOpacity
                     style={[
                         styles.tab,
                         {
-                            borderBottomWidth: tabOn == 0 ? 1 : 0,
-                            paddingVertical: fSize + 1,
+                            backgroundColor:
+                                tabOn == 0 ? tabOnColor : "transparent",
                         },
                     ]}
-                    onPress={() => setTabOn(0)}
+                    onPress={() => {
+                        setTabOn(0);
+                        setRef();
+                    }}
                 >
                     <UIText
-                        value="Đang phát hành"
+                        value="Đang mở"
                         fSize={fSize}
-                        fWeight={tabOn == 0 ? weight.bold : "normal"}
+                        fWeight={weight.bold}
+                        color={tabOn == 0 ? textColorOn : textColorOff}
                     />
                 </TouchableOpacity>
+                <View style={styles.seperator} />
                 <TouchableOpacity
                     style={[
                         styles.tab,
                         {
-                            borderBottomWidth: tabOn == 1 ? 1 : 0,
-                            paddingVertical: fSize + 1,
+                            backgroundColor:
+                                tabOn == 1 ? tabOnColor : "transparent",
                         },
                     ]}
-                    onPress={() => setTabOn(1)}
+                    onPress={() => {
+                        setTabOn(1);
+                        setRef();
+                    }}
                 >
                     <UIText
-                        value="Chờ phát hành"
+                        value="Sắp mở"
                         fSize={fSize}
-                        fWeight={tabOn == 1 ? weight.bold : "normal"}
+                        fWeight={weight.bold}
+                        
+                        color={tabOn == 1 ? textColorOn : textColorOff}
                     />
                 </TouchableOpacity>
+                <View style={styles.seperator} />
                 <TouchableOpacity
                     style={[
                         styles.tab,
                         {
-                            borderBottomWidth: tabOn == 2 ? 1 : 0,
-                            paddingVertical: fSize + 1,
+                            backgroundColor:
+                                tabOn == 2 ? tabOnColor : "transparent",
                         },
                     ]}
-                    onPress={() => setTabOn(2)}
+                    onPress={() => {
+                        setTabOn(2);
+                        setRef();
+                    }}
                 >
                     <UIText
-                        value="Đã phát hành"
+                        value="Kết thúc"
                         fSize={fSize}
-                        fWeight={tabOn == 2 ? weight.bold : "normal"}
+                        fWeight={weight.bold}
+                        
+                        color={tabOn == 2 ? textColorOn : textColorOff}
                     />
                 </TouchableOpacity>
-            </ScrollView>
+            </View>
         </View>
     );
 };
 
 interface ButtonListProps {
-    sortOptions: string;
     setSortOptions: (value: any) => void;
-    reRender?: () => void;
+    setFilterOptions: (value: any) => void;
 }
 
-const ButtonList = ({
-    sortOptions,
+const ButtonList = React.memo(({
     setSortOptions,
-    reRender,
+    setFilterOptions
 }: ButtonListProps) => {
     const bstyles = StyleSheet.create({
         container: {
@@ -109,45 +137,87 @@ const ButtonList = ({
         },
     });
 
+    const [filterOptions] = useState<SelectableOptions[]>([
+        { key: "villa", label: "Villa" },
+        { key: "estate", label: "Estate" },
+        { key: "hall", label: "Hall" },
+        { key: "house", label: "House" },
+        { key: null, label: "None" },
+    ]);
+
+    const [sortOptions] = useState<SelectableOptions[]>([
+        { key: "name", label: "Name" },
+        { key: "totalTokens", label: "Total Tokens" },
+        { key: "price", label: "Price" },
+        { key: "investors", label: "Investors" },
+    ]);
+
     const [sortModal, setSortModal] = useState(false);
     const [filterModal, setFilterModal] = useState(false);
 
     const handleSortPress = () => {
         setSortModal((prev) => !prev);
-        reRender && reRender();
+    };
+
+    const handleFilterPress = () => {
+        setFilterModal((prev) => !prev);
     };
 
     return (
-        <View style={[bstyles.container, {backgroundColor: sortModal? 'red' : 'white'}]}>
-            <Button.Util
-                title="Sort"
-                icon="SORT"
-                onPress={() => handleSortPress()}
-            />
-            <Sorting
+        <View
+            style={[
+                bstyles.container,
+            ]}
+        >
+            <Button.Util title="Sort" icon="SORT" onPress={handleSortPress} />
+            <SelectOptions
+                name="Sort"
+                options={sortOptions}
                 visible={sortModal}
-                onPress={() => handleSortPress()}
-                sortBy={setSortOptions}
+                toggleVisible={handleSortPress}
+                setReturnValue={setSortOptions}
             />
-            <Button.Util title="Filter" icon="FILTER" />
+            <Button.Util
+                title="Filter"
+                icon="FILTER"
+                onPress={handleFilterPress}
+            />
+            <SelectOptions
+                name="Filter"
+                options={filterOptions}
+                visible={filterModal}
+                toggleVisible={handleFilterPress}
+                setReturnValue={setFilterOptions}
+            />
         </View>
     );
-};
+});
 
-export const Waitingrelease = () => {
+export const WaitingRelease = () => {
     const [tabOn, setTabOn] = useState(0);
-    const scrollRef = useRef(null);
-
+    const scrollRef = useRef<FlatList>(null);
+    const dispatch = useAppDispatch();
+    // async function fetchData() {
+    //     try {
+    //       const response = await client.query({
+    //         query: GET_REDATA
+    //       });
+    //       console.log(response.data);
+    //     } catch (error) {
+    //       console.error("Error fetching data: ", error);
+    //     }
+    //   }
     const Colors = useSelector((state: RootState) => state.theme.palette);
     const [ButtonListH, setButtonListH] = useState<number>(0);
     const handleLayout = (event: LayoutChangeEvent) => {
         const { height } = event.nativeEvent.layout;
         setButtonListH(height);
     };
-    const [initData, setInitData] = useState<REData[]>(DATA);
-    const [renderData, setRenderData] = useState<REData[]>(initData);
+    const [initData, setInitData] = useState<RealEstateItemData[]>(DATA);
+    const [renderData, setRenderData] =
+        useState<RealEstateItemData[]>(initData);
     const [sortByOption, setSortByOption] = useState("name");
-    const [loading, setLoading] = useState(false);
+    const [filterByOption, setFilterByOption] = useState<any>(null);
     const handleTab = () => {
         if (tabOn == 0) {
             setRenderData(initData.filter((item) => item.status == "ongoing"));
@@ -160,51 +230,88 @@ export const Waitingrelease = () => {
 
     const handleSort = () => {
         if (sortByOption === "name") {
-            initData.sort((a, b) => a.name.localeCompare(b.name));
+            setInitData(initData.sort((a, b) => a.name.localeCompare(b.name)));
         } else if (sortByOption === "price") {
-            initData.sort((a, b) => a.price - b.price);
+            setInitData(initData.sort((a, b) => a.price - b.price));
         } else if (sortByOption === "investors") {
-            initData.sort((a, b) => a.investors - b.investors);
-        }
-        else if (sortByOption === "totalTokens") {
-            initData.sort((a, b) => a.investors - b.investors);
+            setInitData(initData.sort((a, b) => a.investors - b.investors));
+        } else if (sortByOption === "totalTokens") {
+            setInitData(initData.sort((a, b) => a.totalTokens - b.totalTokens));
         }
     };
+    const handleFilter = () => {
+        if (filterByOption) {
+            setInitData(DATA.filter((item) => item.type == filterByOption));
+        } else setInitData(DATA);
+    };
+
+    const handleRef = () => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollToOffset({ animated: true, offset: 0 });
+        }
+    };
+    // const reDATA = useAppSelector((state)=>state.redata)
+    // useEffect(() => {
+    //     console.log("-------")
+    //     dispatch(fetchReData())
+    //     console.log(reDATA.securityTokens)
+    // },[reDATA.securityTokens]);
+
     useEffect(() => {
-        handleSort(); //sort before filter
         handleTab();
-        console.log('noHope')
-    }, [tabOn, sortByOption, initData]);
+        handleRef();
+    }, [tabOn, initData]);
+
+    useEffect(() => {
+        handleSort();
+        handleTab();
+        handleRef();
+    }, [sortByOption]);
+
+    useEffect(() => {
+        handleFilter();
+    }, [filterByOption]);
 
     return (
         <View style={[styles.container, { backgroundColor: Colors.MAIN }]}>
-            <SectionBar tabOn={tabOn} setTabOn={setTabOn} />
-            <View style={styles.line} />
+            <View
+                style={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: heights.BOTNAV,
+                }}
+            >
+                <UIText
+                    value="Phát Hành Bất Động Sản"
+                    fWeight={"bold"}
+                    fSize={fSize + 2}
+                />
+            </View>
+            <SectionBar tabOn={tabOn} setTabOn={setTabOn} setRef={handleRef} />
             <View style={styles.main}>
                 <View onLayout={handleLayout}>
                     <ButtonList
-                        sortOptions={sortByOption}
+                        setFilterOptions={setFilterByOption}
                         setSortOptions={setSortByOption}
-                        reRender={() => handleSort()}
                     />
                 </View>
                 <FlatList
+                    ref={scrollRef}
                     style={[
                         styles.reItems,
                         {
                             height:
                                 HEIGHT_SCREEN - //Full screen height
                                 heights.STATUS_BAR - //status bar height
-                                verticalScale(50) - //<TabList />
-                                heights.BOTNAV - //bottom navigator height
+                                TABLIST_HEIGHT - //<TabList />
+                                heights.BOTNAV * 2 - //bottom navigator height + header height
                                 ButtonListH, //<ButtonList />
                         },
                     ]}
                     // showsVerticalScrollIndicator={false}
                     data={renderData}
-                    renderItem={({ item, index }) => (
+                    renderItem={({ item }) => (
                         <LongCard
-                            ratio={(index * 10) / 100}
                             containerStyle={{
                                 marginBottom: horizontalScale(10),
                             }}
@@ -222,11 +329,15 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     tabList: {
-        height: verticalScale(50),
-        paddingHorizontal: horizontalScale(10),
+        height: TABLIST_HEIGHT,
+        marginHorizontal: horizontalScale(10),
+        borderRadius: 99,
     },
     listContent: {
-        gap: horizontalScale(10),
+        height: "100%",
+        paddingVertical: 3,
+        flexDirection: "row",
+        gap: horizontalScale(0),
         alignItems: "center",
     },
     reItems: {
@@ -234,20 +345,22 @@ const styles = StyleSheet.create({
         paddingRight: horizontalScale(10),
     },
     tab: {
+        marginHorizontal: 3,
+        flex: 1,
+        height: "100%",
+        justifyContent: "center",
+        borderRadius: 99,
         paddingHorizontal: 0,
         borderColor: "gray",
-    },
-    line: {
-        height: 1,
-        width: "auto",
-        backgroundColor: "lightgray",
+        alignItems: "center",
     },
     main: {
         paddingLeft: horizontalScale(10),
     },
+    seperator: { height: "60%", width: 1, backgroundColor: "black" },
 });
 
-const DATA: REData[] = [
+const DATA: RealEstateItemData[] = [
     {
         status: "ongoing",
         type: "villa",
@@ -260,32 +373,6 @@ const DATA: REData[] = [
             uri: "https://example.com/images/maple_house.jpg",
         },
         investors: 15,
-    },
-    {
-        status: "finished",
-        type: "lodge",
-        name: "Pine Lodge",
-        location: "456 Pine Road, Lakeside",
-        totalTokens: 1000,
-        boughtTokens: 723,
-        price: 354.22,
-        image: {
-            uri: "https://example.com/images/pine_lodge.jpg",
-        },
-        investors: 23,
-    },
-    {
-        status: "waiting",
-        type: "cottage",
-        name: "Oak Cottage",
-        location: "789 Oak Lane, Greenfield",
-        totalTokens: 200,
-        boughtTokens: 85,
-        price: 130.88,
-        image: {
-            uri: "https://example.com/images/oak_cottage.jpg",
-        },
-        investors: 8,
     },
     {
         status: "ongoing",
@@ -301,30 +388,82 @@ const DATA: REData[] = [
         investors: 20,
     },
     {
+        status: "waiting",
+        type: "villa",
+        name: "Cedar Villa",
+        location: "123 Cedar Lane, Bay City",
+        totalTokens: 1000,
+        boughtTokens: 467,
+        price: 582.47,
+        image: {
+            uri: "https://example.com/images/cedar_villa.jpg",
+        },
+        investors: 15,
+    },
+    {
         status: "finished",
-        type: "manor",
-        name: "Willow Manor",
+        type: "villa",
+        name: "Oak Villa",
+        location: "654 Oak Drive, Woodtown",
+        totalTokens: 900,
+        boughtTokens: 823,
+        price: 725.5,
+        image: {
+            uri: "https://example.com/images/oak_villa.jpg",
+        },
+        investors: 25,
+    },
+    {
+        status: "ongoing",
+        type: "estate",
+        name: "Spruce Estate",
+        location: "951 Spruce Lane, Meadowbrook",
+        totalTokens: 1300,
+        boughtTokens: 481,
+        price: 560.89,
+        image: {
+            uri: "https://example.com/images/spruce_estate.jpg",
+        },
+        investors: 17,
+    },
+    {
+        status: "finished",
+        type: "estate",
+        name: "Elm Estate",
+        location: "753 Elm Street, Maplewood",
+        totalTokens: 900,
+        boughtTokens: 294,
+        price: 399.77,
+        image: {
+            uri: "https://example.com/images/elm_estate.jpg",
+        },
+        investors: 14,
+    },
+    {
+        status: "waiting",
+        type: "estate",
+        name: "Willow Estate",
         location: "654 Willow Drive, Oldtown",
         totalTokens: 800,
         boughtTokens: 332,
         price: 242.67,
         image: {
-            uri: "https://example.com/images/willow_manor.jpg",
+            uri: "https://example.com/images/willow_estate.jpg",
         },
         investors: 10,
     },
     {
-        status: "waiting",
-        type: "house",
-        name: "Cedar House",
-        location: "987 Cedar Boulevard, Bay City",
-        totalTokens: 600,
-        boughtTokens: 156,
-        price: 489.01,
+        status: "ongoing",
+        type: "estate",
+        name: "Pine Estate",
+        location: "789 Pine Lane, Greenfield",
+        totalTokens: 1200,
+        boughtTokens: 948,
+        price: 780.99,
         image: {
-            uri: "https://example.com/images/cedar_house.jpg",
+            uri: "https://example.com/images/pine_estate.jpg",
         },
-        investors: 12,
+        investors: 20,
     },
     {
         status: "ongoing",
@@ -340,17 +479,43 @@ const DATA: REData[] = [
         investors: 18,
     },
     {
-        status: "finished",
-        type: "residence",
-        name: "Elm Residence",
-        location: "753 Elm Street, Maplewood",
-        totalTokens: 900,
-        boughtTokens: 294,
-        price: 399.77,
+        status: "ongoing",
+        type: "hall",
+        name: "Maple Hall",
+        location: "159 Maple Way, Hilltop",
+        totalTokens: 1100,
+        boughtTokens: 530,
+        price: 611.34,
         image: {
-            uri: "https://example.com/images/elm_residence.jpg",
+            uri: "https://example.com/images/maple_hall.jpg",
         },
-        investors: 14,
+        investors: 18,
+    },
+    {
+        status: "waiting",
+        type: "hall",
+        name: "Elm Hall",
+        location: "951 Elm Street, Meadowbrook",
+        totalTokens: 1300,
+        boughtTokens: 481,
+        price: 560.89,
+        image: {
+            uri: "https://example.com/images/elm_hall.jpg",
+        },
+        investors: 17,
+    },
+    {
+        status: "finished",
+        type: "hall",
+        name: "Cedar Hall",
+        location: "123 Cedar Lane, Bay City",
+        totalTokens: 1000,
+        boughtTokens: 467,
+        price: 582.47,
+        image: {
+            uri: "https://example.com/images/cedar_hall.jpg",
+        },
+        investors: 15,
     },
     {
         status: "waiting",
@@ -366,16 +531,42 @@ const DATA: REData[] = [
         investors: 21,
     },
     {
-        status: "ongoing",
-        type: "estate",
-        name: "Spruce Estate",
-        location: "951 Spruce Lane, Meadowbrook",
-        totalTokens: 1300,
-        boughtTokens: 481,
-        price: 560.89,
+        status: "waiting",
+        type: "house",
+        name: "Cedar House",
+        location: "987 Cedar Boulevard, Bay City",
+        totalTokens: 600,
+        boughtTokens: 156,
+        price: 489.01,
         image: {
-            uri: "https://example.com/images/spruce_estate.jpg",
+            uri: "https://example.com/images/cedar_house.jpg",
         },
-        investors: 17,
+        investors: 12,
+    },
+    {
+        status: "finished",
+        type: "house",
+        name: "Aspen House",
+        location: "456 Aspen Road, Lakeside",
+        totalTokens: 1000,
+        boughtTokens: 723,
+        price: 354.22,
+        image: {
+            uri: "https://example.com/images/aspen_house.jpg",
+        },
+        investors: 23,
+    },
+    {
+        status: "ongoing",
+        type: "house",
+        name: "Birch House",
+        location: "321 Birch Avenue, Rivertown",
+        totalTokens: 1200,
+        boughtTokens: 948,
+        price: 780.99,
+        image: {
+            uri: "https://example.com/images/birch_house.jpg",
+        },
+        investors: 20,
     },
 ];

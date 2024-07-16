@@ -1,7 +1,8 @@
 import { icons, screens } from "@/constants";
 import { stacks } from "@/constants";
 import { heights } from "@/constants/heights.const";
-import { HomeScreen, Waitingrelease, Invest, Rent, ProfileScreen } from "@/pages";
+import { HomeScreen, WaitingRelease, Rent, ProfileScreen, MarketPlace } from "@/pages";
+import { HEIGHT_SCREEN, verticalScale } from "@/utils";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SvgXml } from "react-native-svg";
 const BotNav = () => {
@@ -16,9 +17,10 @@ const BotNav = () => {
                     height: heights.BOTNAV
                 },
             }}
+            initialRouteName={screens.PROJECT}
         >
             <Tab.Screen
-                name={stacks.HOMESTACK}
+                name={screens.HOME}
                 component={HomeScreen}
                 options={{
                     tabBarIcon: ({ focused }) => (
@@ -30,7 +32,7 @@ const BotNav = () => {
             />
             <Tab.Screen
                 name={screens.PROJECT}
-                component={Waitingrelease}
+                component={WaitingRelease}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
@@ -42,7 +44,7 @@ const BotNav = () => {
 
             <Tab.Screen
                 name={screens.INVEST}
-                component={Waitingrelease}
+                component={MarketPlace}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
@@ -54,11 +56,11 @@ const BotNav = () => {
 
             <Tab.Screen
                 name={screens.RENT}
-                component={Waitingrelease}
+                component={WaitingRelease}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
-                            xml={focused ? icons.PROJECT_ACTIVE : icons.PROJECT}
+                            xml={focused ? icons.RENT_ACTIVE : icons.RENT}
                         />
                     ),
                 }}

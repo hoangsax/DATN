@@ -13,6 +13,11 @@ interface LoginResponse {
     user: User
 }
 
+interface LoginParams {
+    email: string;
+    password: string;
+}
+
 interface authState {
     isLogin: boolean;
     user: User | null;
@@ -33,40 +38,26 @@ const initialState: authState = {
     error: null,
 };
 
-const login = createAsyncThunk(
+const login = createAsyncThunk<LoginResponse, LoginParams, {rejectValue: string}>(
     "auth/login",
-    async (
-        { email, password }: { email: string; password: string },
-        { rejectWithValue }
-    ) => {
+    async ({email, password}, ThunkAPI) => {
         try {
             const response = await client.mutate({
                 mutation: LOGIN_MUTATION,
                 variables: {
                     email,
-                    password,
-                },
+                    password
+                }
             });
 
             if (response.data?.login) {
-                // LOGIN_MUTATION's response:
-                // data {
-                //     login {
-                //         token,
-                //         user {
-                //             id,
-                //             email,
-                //             name,
-                //         }
-                //     } 
-                // }
                 return response.data.login;
             } else {
-                return rejectWithValue("Login failed");
+                return ThunkAPI.rejectWithValue("Login failed");
             }
         } catch (error) {
             const e = error as ErrorMsg;
-            return rejectWithValue(e.message);
+            return ThunkAPI.rejectWithValue(e.message);
         }
     }
 );

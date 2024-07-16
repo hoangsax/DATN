@@ -7,7 +7,7 @@ export const light = {
     BG_TAB_OFF : '#F4F6F9',
     BG_TAB_ON : '#E5F1FF',
     BG_CARD : '#FFFFFF',
-    BG_FORM: '#F4F6F9',
+    BG_FORM: '#C7C8CC',
     TEXT_STD_MAIN : '#2F2F2F',
     TEXT_STD_TITLE : '#000000',
     TEXT_TAB_ON : '#308DFF',

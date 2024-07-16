@@ -1,11 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/store/auth";
 import themeReducer from "@/store/theme";
-
+import redataReducer from "./redata";
 const store = configureStore({
     reducer: {
         auth: authReducer,
         theme: themeReducer,
+        redata: redataReducer
     },
 });
 

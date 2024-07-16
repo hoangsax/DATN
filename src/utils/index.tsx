@@ -1,2 +1,3 @@
 export * from './scaling'
-export * from './sorting'
+export * from './SelectOptions'
+export * from './type'
