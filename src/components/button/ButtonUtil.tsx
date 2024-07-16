@@ -28,6 +28,7 @@ export const ButtonUtil = ( props : ButtonUtilProps) => {
             backgroundColor: Colors.MAIN,
             borderWidth: 1,
             borderRadius: 5,
+            borderColor: Colors.BG_MAIN,
             flexDirection: 'row'
         }
     })

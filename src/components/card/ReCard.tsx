@@ -36,7 +36,7 @@ const defData = {
     location: "random",
 };
 
-export const ReCard = ({ data, onPress, small, onFav }: ReCardProps) => {
+export const ReCard = React.memo(({ data, onPress, small, onFav }: ReCardProps) => {
     const colors = useSelector((state: RootState) => state.theme.palette);
     const scale = small ? 3 / 4 : 1;
     const [item, setItem] = useState<ReCardData>(defData);
@@ -139,4 +139,4 @@ export const ReCard = ({ data, onPress, small, onFav }: ReCardProps) => {
             </View>
         </TouchableOpacity>
     );
-};
+});

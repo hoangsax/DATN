@@ -1,5 +1,5 @@
 import { UIText } from "@/components";
-import { IconType } from "@/constants";
+import { IconType, icons } from "@/constants";
 import {horizontalScale, verticalScale } from "@/utils";
 import React from "react"
 import { StyleSheet, View, TouchableOpacity } from "react-native"
@@ -7,7 +7,7 @@ import { SvgXml } from "react-native-svg";
 
 interface FuntionListProps {
   title: string,
-  icon: IconType,
+  icon: string,
   onPress: () => void,
 }
 

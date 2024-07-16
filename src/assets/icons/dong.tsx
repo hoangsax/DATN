@@ -1,2 +1,4 @@
-export const xml = `<?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
-<svg fill="#000000" width="20" height="20" viewBox="0 0 18 24" id="dong" data-name="Flat Line" xmlns="http://www.w3.org/2000/svg" class="icon flat-line"><path id="primary" d="M7,21h8m0-8h0a4,4,0,0,1-4,4h0a4,4,0,0,1-4-4H7a4,4,0,0,1,4-4h0A4,4,0,0,1,15,13ZM15,3V17M13,5h4" style="fill: none; stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></svg>`;
+export const xml = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.83337 17.5H12.5M12.5 2.5V14.1667M10.8334 4.16667H14.1667M12.5 10.8333C12.5 11.7174 12.1489 12.5652 11.5237 13.1904C10.8986 13.8155 10.0508 14.1667 9.16671 14.1667C8.28265 14.1667 7.43481 13.8155 6.80968 13.1904C6.18456 12.5652 5.83337 11.7174 5.83337 10.8333C5.83337 9.94928 6.18456 9.10143 6.80968 8.47631C7.43481 7.85119 8.28265 7.5 9.16671 7.5C10.0508 7.5 10.8986 7.85119 11.5237 8.47631C12.1489 9.10143 12.5 9.94928 12.5 10.8333Z" stroke="black" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`;

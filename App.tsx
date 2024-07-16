@@ -6,8 +6,6 @@ import { Provider } from "react-redux";
 import { AuthNav } from "@/navigations";
 import { ApolloProvider } from "@apollo/react-hooks";
 export default function App() {
-    const { width, height } = Dimensions.get('window');
-    console.log(width, ' + ' ,height);
     return (
         <Provider store={store}>
             <ApolloProvider client={client}>

@@ -4,12 +4,12 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { LoginScreen } from "@/pages/login";
-import { screens } from "@/constants";
+import { screens, stacks } from "@/constants";
 import { BotNav } from "@/navigations/bottomNav";
 import { View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { heights } from "@/constants/heights.const";
-import { HEIGHT_SCREEN } from "@/utils";
+import { HEIGHT_SCREEN, verticalScale } from "@/utils";
 // import { selectIsLoggedIn } from "@/selector";
 
 const AuthNav = () => {
@@ -21,13 +21,13 @@ const AuthNav = () => {
         <NavigationContainer>
                 <View
                     style={{
-                        height: Bheight,
+                        height: Bheight + 2,
                         backgroundColor: theme.palette.BG_MAIN,
                     }}
                 >
                     <StatusBar style="auto" />
                 </View>
-                <View style={{ flex: HEIGHT_SCREEN - Bheight }}>
+                <View style={{ flex: 1}}>
                     <Stack.Navigator
                         screenOptions={{
                             headerShown: false,
@@ -35,7 +35,7 @@ const AuthNav = () => {
                     >
                         {auth.isLogin ? (
                             <Stack.Screen
-                                name={screens.HOME}
+                                name={stacks.HOMESTACK}
                                 component={BotNav}
                             />
                         ) : (

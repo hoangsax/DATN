@@ -1,7 +1,7 @@
-import RealEstateItem from './RealEstateItem'
-import RecommendItem from './RecommendItem';
+import RealEstateItem from '../../../components/card/RealEstateItem'
+import RecommendItem from '../../../components/card/RecommendItem';
 import HotProject from './HotProject'
-import PromotionBanner from './PromotionBanner';
+import PromotionBanner from '../../../components/card/PromotionBanner';
 import BottomBack from './BottomBack';
 export {RealEstateItem};
 export {RecommendItem};

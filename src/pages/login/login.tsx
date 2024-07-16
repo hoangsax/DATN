@@ -1,3 +1,4 @@
+import client, { GET_REDATA } from "@/client";
 import { Button } from "@/components/button";
 import { InputForm, InputPassword } from "@/components/input";
 import { UIText } from "@/components/text";
@@ -6,7 +7,7 @@ import { AppDispatch, RootState } from "@/store";
 import { logtemp } from "@/store/auth";
 import { useAppDispatch } from "@/store/hooks";
 import { horizontalScale, verticalScale } from "@/utils";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,8 +18,19 @@ export const LoginScreen = () => {
     const colors = useSelector((state: RootState) => state.theme.palette);
     const auth = useSelector((state: RootState) => state.auth);
     const dispatch = useAppDispatch();
+    const fetchData = async () => {
+        try {
+            const respone = await client.query({query: GET_REDATA})
+            console.log(respone.data);
+        } catch (error) {
+            console.error("Error fetching data: ", error);
+        }
+    }
+    useEffect(() => {
+
+    })
     const handleOnPress = () => {
-        dispatch(logtemp());
+        dispatch(logtemp())
     };
 
     return (
