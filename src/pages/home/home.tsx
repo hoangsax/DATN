@@ -1,305 +1,217 @@
-import { StyleSheet, View, ScrollView, Text, FlatList } from "react-native";
-import React, { useRef } from "react";
+// src/screens/SettingsScreen.tsx
+import { GET_USER } from '@/client';
+import { ReCard } from '@/components/card/ReCard';
+import { SearchBar } from '@/components/input';
+import { RootState } from '@/store';
+import { useQuery } from '@apollo/react-hooks';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import { fontSize, horizontalScale, verticalScale } from "@/utils";
-import { FuntionList } from "./components";
-import { TouchableOpacity } from "react-native";
-import {
-    HotProject,
-    PromotionBanner,
-    RealEstateItem,
-    RecommendItem,
-} from "./components";
-import { NavigationProp } from "@react-navigation/native";
-import { icons, screens } from "@/constants";
-import { SvgXml } from "react-native-svg";
-import { UIText } from "@/components";
-import HeaderSearch from "@/components/input/HeaderSearch";
-import { RealEstateItemData } from "../../constants/types";
+import Button from "../../components/button/Button";
+import { icons } from "@/constants";
+import { LongCard } from '@/components/card/LongCard';
+import { RealEstateItemData } from "@/constants"; 
 
-type HomenPageProps = {
-    navigation: NavigationProp<any>;
-};
+const fakeRealEstateData: RealEstateItemData[] = [
+  {
+    status: 'ongoing',
+    type: 'Apartment',
+    name: 'Luxury Sky Tower',
+    location: 'District 1, Ho Chi Minh City',
+    totalTokens: 1000,
+    boughtTokens: 750,
+    price: 2500000000,
+    image: require("@/assets/images/recard_default.jpg"),  // Đảm bảo hình ảnh này tồn tại
+    investors: 120
+  },
+  {
+    status: 'waiting',
+    type: 'Villa',
+    name: 'Seaside Paradise Villa',
+    location: 'Nha Trang, Khanh Hoa',
+    totalTokens: 500,
+    boughtTokens: 0,
+    price: 5000000000,
+    image: require("@/assets/images/recard_default.jpg"),  // Đảm bảo hình ảnh này tồn tại
+    investors: 0
+  },
+  {
+    status: 'waiting',
+    type: 'Office',
+    name: 'Central Business Hub',
+    location: 'District 3, Ho Chi Minh City',
+    totalTokens: 2000,
+    boughtTokens: 1500,
+    price: 3000000000,
+    image: require("@/assets/images/recard_default.jpg"),  // Đảm bảo hình ảnh này tồn tại
+    investors: 80
+  }
+];
 
-const RealEstateForYou = () => {
-    const data: RealEstateItemData[] = [
-        {
-            status: "ongoing",
-            type: "villa",
-            name: "Maple House",
-            location: "123 Maple Street, Springfield",
-            totalTokens: 1000,
-            boughtTokens: 467,
-            price: 582.47,
-            image: {
-                uri: "https://example.com/images/maple_house.jpg",
-            },
-            investors: 15,
-        },
-        {
-            status: "ongoing",
-            type: "villa",
-            name: "Birch Villa",
-            location: "321 Birch Avenue, Rivertown",
-            totalTokens: 1200,
-            boughtTokens: 948,
-            price: 780.99,
-            image: {
-                uri: "https://example.com/images/birch_villa.jpg",
-            },
-            investors: 20,
-        },
-        {
-            status: "waiting",
-            type: "villa",
-            name: "Cedar Villa",
-            location: "123 Cedar Lane, Bay City",
-            totalTokens: 1000,
-            boughtTokens: 467,
-            price: 582.47,
-            image: {
-                uri: "https://example.com/images/cedar_villa.jpg",
-            },
-            investors: 15,
-        },
-    ];
-    return (
-        <View>
-            <TouchableOpacity style={styles.containerLabel}>
-                <UIText value="Dành cho bạn" style={styles.textLabel} />
-                <SvgXml xml={icons.FORWARD} />
-            </TouchableOpacity>
-            <FlatList
-                contentContainerStyle={styles.containerItemList}
-                horizontal={true}
-                data={data}
-                renderItem={({ item }) => <RealEstateItem data={item} />}
-                showsHorizontalScrollIndicator={false}
-            />
-        </View>
-    );
-};
+export interface userData {
+  avatar: any,
+}
 
-const HotRealEstateList = () => {
-    const data: RealEstateItemData[] = [
-        {
-            status: "ongoing",
-            type: "villa",
-            name: "Birch Villa",
-            location: "321 Birch Avenue, Rivertown",
-            totalTokens: 1200,
-            boughtTokens: 948,
-            price: 780.99,
-            image: {
-                uri: "https://example.com/images/birch_villa.jpg",
-            },
-            investors: 20,
-        },
-        {
-            status: "waiting",
-            type: "villa",
-            name: "Cedar Villa",
-            location: "123 Cedar Lane, Bay City",
-            totalTokens: 1000,
-            boughtTokens: 467,
-            price: 582.47,
-            image: {
-                uri: "https://example.com/images/cedar_villa.jpg",
-            },
-            investors: 15,
-        },
-    ];
-    return (
-        <View>
-            <TouchableOpacity style={styles.containerLabel}>
-                <UIText value={"re_hot"} style={styles.textLabel} />
-                <SvgXml xml={icons.FORWARD} />
-            </TouchableOpacity>
-            <FlatList
-                contentContainerStyle={styles.containerItemList}
-                horizontal={true}
-                data={data}
-                renderItem={({ item }) => <RealEstateItem data={item} />}
-                showsHorizontalScrollIndicator={false}
-            />
-        </View>
-    );
-};
+interface HomeScreenProps {
+  onPress?: () => void;
+  onSort?: () => void;
+  data?: userData;
+}
 
-const NearbyRealEstateList = () => {
-    const currentLocation = "Hồ Chí Minh";
+const userData = {
+  avatar: require("@/assets/images/avatar_user.png"),
+}
 
-    const data = [
-        { id: 1, value: { title: "recommended", count: 45 } },
-        { id: 2, value: { title: "new_list", count: 40 } },
-        { id: 3, value: { title: "recently_sold", count: 40 } },
-    ];
+export const HomeScreen = ({  onPress, onSort }: HomeScreenProps) => {
+    const colors = useSelector((state: RootState) => state.theme.palette)
+    const dispatch = useDispatch()
+    const user = useQuery(GET_USER, {variables: {id: 1}})
+    console.log(user.data)
 
-    return (
-        <View>
-            <TouchableOpacity style={styles.containerLabel}>
-                <UIText style={styles.textLabel} value={currentLocation} />
-                <SvgXml xml={icons.FORWARD} />
-            </TouchableOpacity>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.containerItemList}
-            >
-                {data.map((item) => (
-                    <View key={item.id} style={styles.containerItem}>
-                        <RecommendItem data={item.value} />
-                    </View>
-                ))}
-            </ScrollView>
-        </View>
-    );
-};
+    const numberOfReCards = 5;
+    const numberOfLongCards = 3;
+    const Recards = Array.from({ length: numberOfReCards }, (_, index) => index + 1);
+    const Longcards = Array.from({ length: numberOfLongCards }, (_, index) => index + 1);
 
-const HotProjectList = () => {
-    const data = [
-        {
-            id: 1,
-            value: {
-                title: "Aquala City",
-                address: "Quận 5, Hồ Chí Minh",
-                square: 10.3,
-            },
-        },
-        {
-            id: 2,
-            value: {
-                title: "Aquala City",
-                address: "Quận 5, Hồ Chí Minh",
-                square: 5.23,
-            },
-        },
-        {
-            id: 3,
-            value: {
-                title: "Aquala City",
-                address: "Quận 5, Hồ Chí Minh",
-                square: 3.2,
-            },
-        },
-    ];
-    return (
-        <View>
-            <TouchableOpacity style={styles.containerLabel}>
-                <UIText style={styles.textLabel} value={"re_hot"} />
-                <SvgXml xml={icons.FORWARD} />
-            </TouchableOpacity>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.containerItemList}
-            >
-                {data.map((item) => (
-                    <View key={item.id} style={styles.containerItem}>
-                        <HotProject data={item.value} />
-                    </View>
-                ))}
-            </ScrollView>
-        </View>
-    );
-};
+    const [selectedButton, setSelectedButton] = useState<string | null>(null);
 
-const PromotionBannerList = () => {
-    const data = [{ id: 1 }, { id: 2 }, { id: 3 }];
-    return (
-        <View>
-            <TouchableOpacity style={styles.containerLabel}>
-                <UIText style={styles.textLabel} value={"now_promotion"} />
-                <SvgXml xml={icons.FORWARD} />
-            </TouchableOpacity>
-            <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.containerItemList}
-            >
-                {data.map((item) => (
-                    <View key={item.id} style={styles.containerItem}>
-                        <PromotionBanner />
-                    </View>
-                ))}
-            </ScrollView>
-        </View>
-    );
-};
-
-export const HomeScreen = ({ navigation }: HomenPageProps) => {
-    const onPressSell = () => {
-        navigation.navigate(screens.PROJECT);
+    const handleButtonPress = (buttonTitle: string) => {
+        if (selectedButton === buttonTitle) {
+            setSelectedButton(null); 
+        } else {
+            setSelectedButton(buttonTitle); 
+        }
     };
 
+    const buttonTitles = ['Recommended', 'Top Rates', 'Best Offers', 'Most View'];
+
     return (
-        <View style={styles.container}>
-            <HeaderSearch navigation={navigation} />
-            <ScrollView
-                style={styles.body}
-                showsVerticalScrollIndicator={false}
-            >
-                <View style={styles.containerFuntion}>
-                    <FuntionList
-                        icon={icons.GOOGLE}
-                        title="Mua"
-                        onPress={() => {}}
+        <ScrollView showsVerticalScrollIndicator={false} style={[styles.container, {backgroundColor: colors.MAIN}]}>
+          
+          <View style={styles.title}>
+            <View>
+              <Text style={styles.titlel1}>Let's Find Your </Text>
+              <Text style={styles.titlel2}>Ideal Investment </Text>
+            </View>
+            <Image
+                    resizeMode="cover"
+                    style={styles.img}
+                    source={userData.avatar}
+                />
+          </View>
+
+          <View style={styles.search}>
+          <SearchBar/>
+          <View style={styles.button}>
+            <Button.Icon
+                        icon={icons.SORT}
+                        size="small"
+                        radius={20}
+                        onPress={onSort}
                     />
-                    <FuntionList
-                        icon={icons.GOOGLE}
-                        title="Bán"
-                        onPress={() => {}}
+          </View>
+          </View>
+
+          <ScrollView showsHorizontalScrollIndicator={false} horizontal={true} style={styles.buttonSort}>
+                {buttonTitles.map((title, index) => (
+                    <Button.Primary
+                        key={index}
+                        title={title}
+                        fill={false} 
+                        fontSize={10}   
+                        style={{ 
+                            marginRight: horizontalScale(10)
+                        }}
+                        backgroundColor={selectedButton === title ? colors.BG_TAB_ON : colors.BG_CARD}
+                        color={selectedButton === title ? colors.BG_BT_MAIN : colors.TEXT_STD_MAIN}
+                        onPress={() => handleButtonPress(title)}
                     />
-                    <FuntionList
-                        icon={icons.GOOGLE}
-                        title="Thuê"
-                        onPress={() => {}}
-                    />
-                </View>
-                <RealEstateForYou />
-                <HotRealEstateList />
-                <NearbyRealEstateList />
-                <HotProjectList />
-                <PromotionBannerList />
+                ))}
             </ScrollView>
-        </View>
+
+          <ScrollView horizontal={true} style={styles.scrollView} showsHorizontalScrollIndicator={false}>
+              {Recards.map((Recard, index) => (
+                <View key={index} style={styles.cardContainer}>
+                  <ReCard />
+                </View>
+              ))}
+            </ScrollView>
+            <View style={styles.subtitle}>
+              <Text style={styles.titlel2}>Near You</Text>
+              <TouchableOpacity>
+                <Text style={styles.buttonmore}>More</Text>
+              </TouchableOpacity>
+              </View>
+              {fakeRealEstateData.map((item, index) => (
+                <View key={index} style={styles.VecardContainer}>
+                    <LongCard data={item} />
+                </View>
+            ))}
+        </ScrollView>
     );
 };
 
-export default HomeScreen;
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    body: {
-        flex: 1,
-    },
-    containerFuntion: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingHorizontal: horizontalScale(40),
-        paddingTop: verticalScale(23),
-    },
-    containerLabel: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginTop: verticalScale(22),
-        paddingLeft: horizontalScale(16),
-        paddingRight: horizontalScale(10),
-    },
-    containerItemList: {
-        marginTop: verticalScale(14),
-        paddingHorizontal: horizontalScale(12),
-        paddingBottom: verticalScale(5),
-        gap: horizontalScale(10),
-    },
-    containerItem: {
-        marginRight: horizontalScale(10),
-        paddingBottom: horizontalScale(5),
-    },
-    textLabel: {
-        fontSize: fontSize(16),
-        color: "gray900",
-        fontWeight: "500",
-    },
+  container: {
+    flex: 1,
+  },
+  title: {
+    paddingHorizontal: horizontalScale(25),
+    paddingTop: verticalScale(25),
+    flexDirection: "row", 
+    justifyContent: "space-between",
+    alignItems: "center", 
+  },
+  subtitle: {
+    paddingHorizontal: horizontalScale(25),
+    flexDirection: "row", 
+    justifyContent: "space-between",
+    alignItems: "center", 
+  },
+  titlel1: {
+    fontSize: fontSize(18),
+    fontWeight: "400",
+    color: "#8997A9"
+  },
+  titlel2: {
+    fontSize: fontSize(20),
+    fontWeight: "bold",
+    paddingVertical: verticalScale(5)
+  },
+  img: {
+    height: verticalScale(60),
+    width: horizontalScale(60),
+  },
+  scrollView: {
+    padding: verticalScale(25),
+  },
+  cardContainer: {
+    marginRight: horizontalScale(25), 
+  },
+  VecardContainer: {
+    paddingTop: verticalScale(25), 
+    paddingHorizontal: horizontalScale(25)
+  },
+  search: {
+    padding: horizontalScale(25),
+    flexDirection: "row",
+    paddingTop: verticalScale(25),
+    alignItems: "center",
+  },
+  button: {
+    paddingLeft: horizontalScale(10)
+  },
+  buttonSort: {  
+    flexDirection: "row",
+    paddingHorizontal: horizontalScale(25),
+    paddingBottom: verticalScale(5)
+  },
+  buttonmore: {
+    fontSize: fontSize(14),
+    fontWeight:"600",
+    color: "#989898",
+  }
 });
+
+export default HomeScreen;
