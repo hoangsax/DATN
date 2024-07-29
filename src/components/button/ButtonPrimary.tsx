@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
+import { StyleSheet, TouchableOpacity, View, Text, ViewStyle } from "react-native";
 import { fontSize, horizontalScale, verticalScale } from "@/utils";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -11,13 +11,17 @@ interface ButtonProps {
     title: string;
     color?: string;
     fill?: boolean;
+    fontSize?: number;
+    borderRadius?: number;
+    backgroundColor?: string;
+    style?: ViewStyle;
     onPress?: () => void;
 }
 
 const ButtonPrimary = (props: ButtonProps) => {
     const colors = useSelector((state: RootState) => state.theme.palette);
 
-    const { title, color, fill, onPress } = props;
+    const { title, color, borderRadius,backgroundColor,style, fill, onPress } = props;
 
     const styles = StyleSheet.create({
         container: {
@@ -26,10 +30,10 @@ const ButtonPrimary = (props: ButtonProps) => {
         },
         button: {
             flex: fill ? 1 : undefined,
-            backgroundColor: colors.BG_BT_MAIN,
+            backgroundColor: backgroundColor ? backgroundColor : colors.BG_BT_MAIN,
             paddingVertical: verticalScale(12),
             paddingHorizontal: horizontalScale(20),
-            borderRadius: 8,
+            borderRadius: borderRadius ? borderRadius: 8,
             alignItems: "center",
             height: "auto",
         },
@@ -42,7 +46,7 @@ const ButtonPrimary = (props: ButtonProps) => {
     });
 
     return (
-        <View style={[styles.container, defStyles.shadowBox]}>
+        <View style={[styles.container, defStyles.shadowBox, style]}>
             <TouchableOpacity style={styles.button} onPress={onPress}>
                 <Text style={styles.text}>{title}</Text>
             </TouchableOpacity>
