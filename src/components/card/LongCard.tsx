@@ -1,6 +1,6 @@
 import { RootState } from "@/store";
 import { horizontalScale, verticalScale } from "@/utils";
-import React from "react";
+import React, { useEffect } from "react";
 import {
     ImageBackground,
     StyleProp,
@@ -28,8 +28,9 @@ export const LongCard = ({ containerStyle, data }: LongCardProps) => {
     const Colors = useSelector((state: RootState) => state.theme.palette);
     const styles = StyleSheet.create({
         container: {
-            height: IMG_HW + 2 * horizontalScale(10),
             borderRadius: 15,
+
+            backgroundColor: Colors.BG_CARD_MAIN,
         },
         imgContainer: {
             height: IMG_HW,
@@ -49,9 +50,7 @@ export const LongCard = ({ containerStyle, data }: LongCardProps) => {
             // width: ratio
             //     ? ratio * (WIDTH_SCREEN - 2 * horizontalScale(10))
             //     : WIDTH_SCREEN - 2 * horizontalScale(10),
-            backgroundColor: Colors.BG_CARD_MAIN,
             borderColor: Colors.BORDER_ICON,
-            borderWidth: 0.5,
             borderRadius: 15,
             gap: 10,
             paddingHorizontal: horizontalScale(10),
@@ -87,51 +86,55 @@ export const LongCard = ({ containerStyle, data }: LongCardProps) => {
         },
     });
 
+    useEffect(() => {
+        return;
+    }, []);
+
     return (
-        <TouchableOpacity style={[styles.container, containerStyle]}>
-            <View style={styles.progress}>
-                <ImageBackground
-                    style={styles.imgContainer}
-                    source={require("@/assets/images/psuedo_data/img_001.jpeg")}
-                ></ImageBackground>
-                <View style={styles.detail}>
-                    <View style={styles.re_top}>
-                        <View style={styles.re_investor}>
-                            <UIText
-                                value={`${data.investors}`}
-                                fWeight={"bold"}
-                                color={"#5d995d"}
-                            />
-                            <UIText value={` Nhà đầu tư`} />
-                        </View>
-                        <ReType value={data.type} />
+        <TouchableOpacity
+            style={[styles.container, styles.progress, containerStyle]}
+        >
+            <ImageBackground
+                style={styles.imgContainer}
+                source={require("@/assets/images/psuedo_data/img_001.jpeg")}
+            ></ImageBackground>
+            <View style={styles.detail}>
+                <View style={styles.re_top}>
+                    <View style={styles.re_investor}>
+                        <UIText
+                            value={`${data.investors}`}
+                            fWeight={"bold"}
+                            color={"#5d995d"}
+                        />
+                        <UIText value={` Nhà đầu tư`} />
                     </View>
-                    <View style={styles.re_info}>
-                        <UIText value={data.name} fSize={25} fWeight={"bold"} />
-                        <View style={styles.re_location}>
-                            <SvgXml
-                                xml={icons.LOCATION_FILL}
-                                height={15}
-                                width={15}
-                            />
-                            <UIText
-                                value={data.location}
-                                color={Colors.TEXT_STD_FORM}
-                                fSize={12}
-                            />
-                        </View>
+                    <ReType value={data.type} />
+                </View>
+                <View style={styles.re_info}>
+                    <UIText value={data.name} fSize={25} fWeight={"bold"} />
+                    <View style={styles.re_location}>
+                        <SvgXml
+                            xml={icons.LOCATION_FILL}
+                            height={15}
+                            width={15}
+                        />
+                        <UIText
+                            value={data.location}
+                            color={Colors.TEXT_STD_FORM}
+                            fSize={12}
+                        />
                     </View>
-                    <View style={styles.re_bot}>
-                        <View style={styles.re_token}>
-                            <SvgXml xml={icons.TOKEN} />
-                            <UIText
-                                value={`${data.boughtTokens}/${data.totalTokens}`}
-                            />
-                        </View>
-                        <View style={styles.re_price}>
-                            <SvgXml xml={icons.DONG} />
-                            <UIText value={data.price} />
-                        </View>
+                </View>
+                <View style={styles.re_bot}>
+                    <View style={styles.re_token}>
+                        <SvgXml xml={icons.TOKEN} />
+                        <UIText
+                            value={`${data.boughtTokens}/${data.totalTokens}`}
+                        />
+                    </View>
+                    <View style={styles.re_price}>
+                        <SvgXml xml={icons.DONG} />
+                        <UIText value={data.price} />
                     </View>
                 </View>
             </View>

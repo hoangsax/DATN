@@ -1,1 +1,1 @@
-export * from './rent'
+export * from './lease'

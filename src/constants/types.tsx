@@ -39,3 +39,10 @@ export type HotProjectDataProps = {
   address: string,
   square: number, //ha
 }
+
+export type ReCardData = {
+    image: ImageURISource;
+    name: string;
+    price: number;
+    location: string;
+}

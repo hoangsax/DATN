@@ -8,6 +8,6 @@ export const screens = {
     SEARCH: 'Search',
     ADD_PROPERTY: 'AddProperty',
     PROJECT: 'Project',
-    RENT: 'Rent',
+    LEASE: 'Lease',
     INVEST: 'Invest'
 }

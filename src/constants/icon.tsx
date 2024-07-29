@@ -15,8 +15,10 @@ export const icons = {
     PROJECT_ACTIVE: require('@/assets/icons/project_active').xml,
     INVEST: require('@/assets/icons/invest').xml,
     INVEST_ACTIVE: require('@/assets/icons/invest_active').xml,
-    RENT: require('@/assets/icons/rent').xml,
-    RENT_ACTIVE: require('@/assets/icons/rent_active').xml,
+    LEASE: require('@/assets/icons/rent').xml,
+    LEASE_ACTIVE: require('@/assets/icons/rent_active').xml,
+    MARKETPLACE: require('@/assets/icons/marketplace').xml,
+    MARKETPLACE_ACTIVE: require('@/assets/icons/marketplace_active').xml,
     //ComponentIcons
 
     HEART: require('@/assets/icons/heart').xml,

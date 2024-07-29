@@ -1,7 +1,7 @@
 // src/screens/SettingsScreen.tsx
 import { UIText } from "@/components";
 import { Button } from "@/components/button";
-import { heights, images } from "@/constants";
+import { defStyles, heights, images } from "@/constants";
 import { RootState } from "@/store";
 import { logout } from "@/store/auth";
 import {
@@ -38,23 +38,22 @@ export const ProfileScreen = () => {
     const blur = useSharedValue(0);
     const auth = useSelector((state: RootState) => state.auth);
     const [componentHeight, setComponentHeight] = useState(0);
-    const [showFixedComponent, setShowFixedComponent] = useState(false);
+    const [showFixedComponent, setShowFixedComponent] = useState(0);
     const Colors = useSelector((state: RootState) => state.theme.palette);
     const dispatch = useDispatch();
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const scrollPosition = event.nativeEvent.contentOffset.y;
-        setShowFixedComponent(scrollPosition > verticalScale(116)); // Adjust the height threshold as needed
+        setShowFixedComponent(scrollPosition - verticalScale(116)); // Adjust the height threshold as needed
     };
 
     useEffect(() => {
-        blur.value = showFixedComponent
-            ? withTiming(1, { duration: 500 })
-            : withTiming(0, { duration: 500 });
+        blur.value = showFixedComponent > 0
+            ? withTiming(showFixedComponent, { duration: 1000 })
+            : withTiming(0, { duration: 0 });
     }, [showFixedComponent]);
     const handleLayout = (event: LayoutChangeEvent) => {
         const { height } = event.nativeEvent.layout;
         setComponentHeight(height);
-        console.log(componentHeight);
     };
     return (
         <View style={styles.container}>
@@ -63,7 +62,7 @@ export const ProfileScreen = () => {
                 contentContainerStyle={styles.scrollContainer}
                 showsVerticalScrollIndicator={false}
             >
-                <View style={styles.header} onLayout={handleLayout}>
+                <View style={[styles.header, defStyles.shadowBox]} onLayout={handleLayout}>
                     <View style={styles.header_top}>
                         <Image source={images.PROFILE} style={styles.logo} />
                         <UIText
@@ -100,7 +99,7 @@ export const ProfileScreen = () => {
                         fWeight={"bold"}
                         fSize={TITLE_TEXT}
                     />
-                    <View style={styles.option_list}>
+                    <View style={[styles.option_list, defStyles.shadowBox]}>
                         <TouchableHighlight
                             underlayColor={Colors.BG_CARD_MAIN}
                             style={[
@@ -165,7 +164,7 @@ export const ProfileScreen = () => {
                         fWeight={"bold"}
                         fSize={TITLE_TEXT}
                     />
-                    <View style={styles.option_list}>
+                    <View style={[styles.option_list, defStyles.shadowBox]}>
                         <TouchableHighlight
                             underlayColor={Colors.BG_CARD_MAIN}
                             style={[

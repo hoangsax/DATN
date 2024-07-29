@@ -1,13 +1,14 @@
 import { Button } from "@/components/button";
 import { LongCard } from "@/components/card/LongCard";
 import { UIText } from "@/components/text";
-import { weight } from "@/constants";
+import { defStyles, weight } from "@/constants";
 import { heights } from "@/constants/heights.const";
 import { RootState } from "@/store";
 import {
     HEIGHT_SCREEN,
     SelectOptions,
     SelectableOptions,
+    WIDTH_SCREEN,
     fontSize,
     horizontalScale,
     verticalScale,
@@ -27,19 +28,47 @@ import client, { GET_REDATA, GET_TOKEN_INFO } from "@/client";
 import { login } from "@/store/auth";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchReData } from "@/store/redata";
+import Animated, {
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
+} from "react-native-reanimated";
 
 interface SectionBarProps {
     tabOn: number;
     setTabOn: (num: number) => void;
     setRef: () => void;
 }
-const TABLIST_HEIGHT = verticalScale(45)
+const TABLIST_HEIGHT = verticalScale(45);
 const fSize = fontSize(14);
 const SectionBar = ({ tabOn, setTabOn, setRef }: SectionBarProps) => {
     const Colors = useAppSelector((state) => state.theme.palette);
     const tabOnColor = Colors.BG_CARD_MAIN;
-    const textColorOn = Colors.TEXT_STD_MAIN
-    const textColorOff = Colors.MAIN
+    const textColorOn = Colors.TEXT_STD_MAIN;
+    const textColorOff = Colors.MAIN;
+    const indicatorPos = useSharedValue(0);
+    const TAB_WIDTH =
+        (WIDTH_SCREEN -
+            horizontalScale(10) * 2 /* margin of 2 sides */ -
+            horizontalScale(3) * 6 /* 6 gap between tab */ -
+            2) /* 2 2-width separators */ /
+        3;
+    const handleTabPress = (index: number) => {
+        setTabOn(index);
+        indicatorPos.value = withTiming(
+            index *
+                (TAB_WIDTH +
+                    horizontalScale(3) * 2 /* 2 margin of each tab */ +
+                    1) /* separator width */,
+            { duration: 300 }
+        );
+        setRef();
+    };
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateX: indicatorPos.value }],
+        };
+    });
     return (
         <View
             style={[
@@ -50,71 +79,38 @@ const SectionBar = ({ tabOn, setTabOn, setRef }: SectionBarProps) => {
                 },
             ]}
         >
+            <Animated.View
+                style={[
+                    styles.tabIndicator,
+                    defStyles.shadowBox,
+                    animatedStyle,
+                    {
+                        width: TAB_WIDTH,
+                        backgroundColor: Colors.BG_TAB_ON,
+                    },
+                ]}
+            />
             <View style={styles.listContent}>
-                <TouchableOpacity
-                    style={[
-                        styles.tab,
-                        {
-                            backgroundColor:
-                                tabOn == 0 ? tabOnColor : "transparent",
-                        },
-                    ]}
-                    onPress={() => {
-                        setTabOn(0);
-                        setRef();
-                    }}
-                >
-                    <UIText
-                        value="Đang mở"
-                        fSize={fSize}
-                        fWeight={weight.bold}
-                        color={tabOn == 0 ? textColorOn : textColorOff}
-                    />
-                </TouchableOpacity>
-                <View style={styles.seperator} />
-                <TouchableOpacity
-                    style={[
-                        styles.tab,
-                        {
-                            backgroundColor:
-                                tabOn == 1 ? tabOnColor : "transparent",
-                        },
-                    ]}
-                    onPress={() => {
-                        setTabOn(1);
-                        setRef();
-                    }}
-                >
-                    <UIText
-                        value="Sắp mở"
-                        fSize={fSize}
-                        fWeight={weight.bold}
-                        
-                        color={tabOn == 1 ? textColorOn : textColorOff}
-                    />
-                </TouchableOpacity>
-                <View style={styles.seperator} />
-                <TouchableOpacity
-                    style={[
-                        styles.tab,
-                        {
-                            backgroundColor:
-                                tabOn == 2 ? tabOnColor : "transparent",
-                        },
-                    ]}
-                    onPress={() => {
-                        setTabOn(2);
-                        setRef();
-                    }}
-                >
-                    <UIText
-                        value="Kết thúc"
-                        fSize={fSize}
-                        fWeight={weight.bold}
-                        
-                        color={tabOn == 2 ? textColorOn : textColorOff}
-                    />
-                </TouchableOpacity>
+                {["Đang mở", "Sắp mở", "Kết thúc"].map((title, index) => (
+                    <React.Fragment key={index}>
+                        <TouchableOpacity
+                            style={[styles.tab]}
+                            onPress={() => {
+                                handleTabPress(index);
+                            }}
+                        >
+                            <UIText
+                                value={title}
+                                fSize={fSize}
+                                fWeight={weight.bold}
+                                color={
+                                    tabOn == index ? textColorOn : textColorOff
+                                }
+                            />
+                        </TouchableOpacity>
+                        {index < 2 && <View style={styles.seperator} />}
+                    </React.Fragment>
+                ))}
             </View>
         </View>
     );
@@ -125,73 +121,72 @@ interface ButtonListProps {
     setFilterOptions: (value: any) => void;
 }
 
-const ButtonList = React.memo(({
-    setSortOptions,
-    setFilterOptions
-}: ButtonListProps) => {
-    const bstyles = StyleSheet.create({
-        container: {
-            flexDirection: "row",
-            gap: horizontalScale(10),
-            paddingVertical: verticalScale(10),
-        },
-    });
+const ButtonList = React.memo(
+    ({ setSortOptions, setFilterOptions }: ButtonListProps) => {
+        const bstyles = StyleSheet.create({
+            container: {
+                flexDirection: "row",
+                gap: horizontalScale(10),
+                paddingVertical: verticalScale(10),
+            },
+        });
 
-    const [filterOptions] = useState<SelectableOptions[]>([
-        { key: "villa", label: "Villa" },
-        { key: "estate", label: "Estate" },
-        { key: "hall", label: "Hall" },
-        { key: "house", label: "House" },
-        { key: null, label: "None" },
-    ]);
+        const [filterOptions] = useState<SelectableOptions[]>([
+            { key: "villa", label: "Villa" },
+            { key: "estate", label: "Estate" },
+            { key: "hall", label: "Hall" },
+            { key: "house", label: "House" },
+            { key: null, label: "None" },
+        ]);
 
-    const [sortOptions] = useState<SelectableOptions[]>([
-        { key: "name", label: "Name" },
-        { key: "totalTokens", label: "Total Tokens" },
-        { key: "price", label: "Price" },
-        { key: "investors", label: "Investors" },
-    ]);
+        const [sortOptions] = useState<SelectableOptions[]>([
+            { key: "name", label: "Name" },
+            { key: "totalTokens", label: "Total Tokens" },
+            { key: "price", label: "Price" },
+            { key: "investors", label: "Investors" },
+        ]);
 
-    const [sortModal, setSortModal] = useState(false);
-    const [filterModal, setFilterModal] = useState(false);
+        const [sortModal, setSortModal] = useState(false);
+        const [filterModal, setFilterModal] = useState(false);
 
-    const handleSortPress = () => {
-        setSortModal((prev) => !prev);
-    };
+        const handleSortPress = () => {
+            setSortModal((prev) => !prev);
+        };
 
-    const handleFilterPress = () => {
-        setFilterModal((prev) => !prev);
-    };
+        const handleFilterPress = () => {
+            setFilterModal((prev) => !prev);
+        };
 
-    return (
-        <View
-            style={[
-                bstyles.container,
-            ]}
-        >
-            <Button.Util title="Sort" icon="SORT" onPress={handleSortPress} />
-            <SelectOptions
-                name="Sort"
-                options={sortOptions}
-                visible={sortModal}
-                toggleVisible={handleSortPress}
-                setReturnValue={setSortOptions}
-            />
-            <Button.Util
-                title="Filter"
-                icon="FILTER"
-                onPress={handleFilterPress}
-            />
-            <SelectOptions
-                name="Filter"
-                options={filterOptions}
-                visible={filterModal}
-                toggleVisible={handleFilterPress}
-                setReturnValue={setFilterOptions}
-            />
-        </View>
-    );
-});
+        return (
+            <View style={[bstyles.container]}>
+                <Button.Util
+                    title="Sort"
+                    icon="SORT"
+                    onPress={handleSortPress}
+                />
+                <SelectOptions
+                    name="Sort"
+                    options={sortOptions}
+                    visible={sortModal}
+                    toggleVisible={handleSortPress}
+                    setReturnValue={setSortOptions}
+                />
+                <Button.Util
+                    title="Filter"
+                    icon="FILTER"
+                    onPress={handleFilterPress}
+                />
+                <SelectOptions
+                    name="Filter"
+                    options={filterOptions}
+                    visible={filterModal}
+                    toggleVisible={handleFilterPress}
+                    setReturnValue={setFilterOptions}
+                />
+            </View>
+        );
+    }
+);
 
 export const WaitingRelease = () => {
     const [tabOn, setTabOn] = useState(0);
@@ -218,31 +213,34 @@ export const WaitingRelease = () => {
         useState<RealEstateItemData[]>(initData);
     const [sortByOption, setSortByOption] = useState("name");
     const [filterByOption, setFilterByOption] = useState<any>(null);
-    const handleTab = () => {
+    const handleTab = (data: RealEstateItemData[]) => {
         if (tabOn == 0) {
-            setRenderData(initData.filter((item) => item.status == "ongoing"));
+            return [...data].filter((item) => item.status == "ongoing");
         } else if (tabOn == 1) {
-            setRenderData(initData.filter((item) => item.status == "waiting"));
+            return [...data].filter((item) => item.status == "waiting");
         } else if (tabOn == 2) {
-            setRenderData(initData.filter((item) => item.status == "finished"));
+            return [...data].filter((item) => item.status == "finished");
         }
+        else return data
     };
 
-    const handleSort = () => {
+    const handleSort = (data: RealEstateItemData[]) => {
         if (sortByOption === "name") {
-            setInitData(initData.sort((a, b) => a.name.localeCompare(b.name)));
+            return [...data].sort((a, b) => a.name.localeCompare(b.name));
         } else if (sortByOption === "price") {
-            setInitData(initData.sort((a, b) => a.price - b.price));
+            return [...data].sort((a, b) => a.price - b.price);
         } else if (sortByOption === "investors") {
-            setInitData(initData.sort((a, b) => a.investors - b.investors));
+            return [...data].sort((a, b) => a.investors - b.investors);
         } else if (sortByOption === "totalTokens") {
-            setInitData(initData.sort((a, b) => a.totalTokens - b.totalTokens));
+            return [...data].sort((a, b) => a.totalTokens - b.totalTokens);
         }
+        else return data
     };
+
     const handleFilter = () => {
         if (filterByOption) {
-            setInitData(DATA.filter((item) => item.type == filterByOption));
-        } else setInitData(DATA);
+            return DATA.filter((item) => item.type == filterByOption);
+        } else return DATA;
     };
 
     const handleRef = () => {
@@ -250,42 +248,22 @@ export const WaitingRelease = () => {
             scrollRef.current.scrollToOffset({ animated: true, offset: 0 });
         }
     };
-    // const reDATA = useAppSelector((state)=>state.redata)
-    // useEffect(() => {
-    //     console.log("-------")
-    //     dispatch(fetchReData())
-    //     console.log(reDATA.securityTokens)
-    // },[reDATA.securityTokens]);
 
     useEffect(() => {
-        handleTab();
+        setRenderData(handleTab(initData))
         handleRef();
     }, [tabOn, initData]);
 
     useEffect(() => {
-        handleSort();
-        handleTab();
-        handleRef();
-    }, [sortByOption]);
-
-    useEffect(() => {
-        handleFilter();
-    }, [filterByOption]);
+        let filteredData = handleFilter()
+        let sortedData = handleSort(filteredData);
+        setInitData(sortedData);
+    }, [sortByOption, filterByOption]);
 
     return (
         <View style={[styles.container, { backgroundColor: Colors.MAIN }]}>
-            <View
-                style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: heights.BOTNAV,
-                }}
-            >
-                <UIText
-                    value="Phát Hành Bất Động Sản"
-                    fWeight={"bold"}
-                    fSize={fSize + 2}
-                />
+            <View style={[styles.header, { backgroundColor: Colors.BG_MAIN }]}>
+                <UIText value="Phát Hành" fWeight={"bold"} fSize={fSize + 10} />
             </View>
             <SectionBar tabOn={tabOn} setTabOn={setTabOn} setRef={handleRef} />
             <View style={styles.main}>
@@ -304,19 +282,22 @@ export const WaitingRelease = () => {
                                 HEIGHT_SCREEN - //Full screen height
                                 heights.STATUS_BAR - //status bar height
                                 TABLIST_HEIGHT - //<TabList />
-                                heights.BOTNAV * 2 - //bottom navigator height + header height
+                                heights.BOTNAV * 2.5 - //bottom navigator height + header height
+                                verticalScale(10) - //margin bottom of header
                                 ButtonListH, //<ButtonList />
                         },
                     ]}
                     // showsVerticalScrollIndicator={false}
                     data={renderData}
-                    renderItem={({ item }) => (
-                        <LongCard
-                            containerStyle={{
-                                marginBottom: horizontalScale(10),
-                            }}
+                    renderItem={({ item, index }) => (
+                        <React.Fragment key={index}>
+                            <LongCard
+                            containerStyle={[{
+                                marginBottom: verticalScale(10)
+                            }, defStyles.shadowBox]}
                             data={item}
                         />
+                        </React.Fragment>
                     )}
                 />
             </View>
@@ -328,9 +309,23 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    header: {
+        justifyContent: "center",
+        height: heights.BOTNAV * 1.5,
+        paddingHorizontal: horizontalScale(10),
+        marginBottom: verticalScale(10),
+    },
     tabList: {
         height: TABLIST_HEIGHT,
         marginHorizontal: horizontalScale(10),
+        borderRadius: 99,
+    },
+    tabIndicator: {
+        marginVertical: verticalScale(3),
+        position: "absolute",
+        bottom: 0,
+        left: horizontalScale(3),
+        height: TABLIST_HEIGHT - 2 * verticalScale(3),
         borderRadius: 99,
     },
     listContent: {
@@ -341,11 +336,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     reItems: {
-        gap: verticalScale(10),
         paddingRight: horizontalScale(10),
     },
     tab: {
-        marginHorizontal: 3,
+        marginHorizontal: horizontalScale(3),
         flex: 1,
         height: "100%",
         justifyContent: "center",

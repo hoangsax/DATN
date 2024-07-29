@@ -1,5 +1,5 @@
 import { Button, ReCard, SearchBar, UIText } from "@/components";
-import { heights, RealEstateItemData, ReCardData } from "@/constants";
+import { heights, RealEstateItemData } from "@/constants";
 import { useAppSelector } from "@/store/hooks";
 import {
     fontSize,
@@ -99,7 +99,7 @@ const ListItemRender = React.memo(
                     paddingBottom: verticalScale(10),
                 }}
                 style={{
-                    paddingRight: horizontalScale(20),
+                    paddingRight: horizontalScale(10),
                     height: height,
                 }}
                 data={renderData}
@@ -115,7 +115,7 @@ const ListItemRender = React.memo(
     }
 );
 
-export const MarketPlace = () => {
+export const Lease = () => {
     const fSize = fontSize(14);
     const Colors = useAppSelector((state) => state.theme.palette);
     const [ButtonListH, setButtonListH] = useState<number>(0);
@@ -171,7 +171,7 @@ export const MarketPlace = () => {
     return (
         <View>
             <View style={[styles.header, { backgroundColor: Colors.BG_MAIN }]}>
-                <UIText value="Giao dịch" fWeight={"bold"} fSize={fSize + 10} />
+                <UIText value="Thuê" fWeight={"bold"} fSize={fSize + 10} />
             </View>
             <View style={styles.util}>
                 <SearchBar setWidth={"100%"} />
@@ -182,12 +182,8 @@ export const MarketPlace = () => {
                     />
                 </View>
             </View>
-
             <View style={styles.content}>
-                <ListItemRender
-                    renderData={renderData}
-                    height={FLATLIST_HEIGHT}
-                />
+                <ListItemRender renderData={renderData} height={FLATLIST_HEIGHT} />
             </View>
         </View>
     );

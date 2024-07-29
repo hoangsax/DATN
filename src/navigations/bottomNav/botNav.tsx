@@ -1,13 +1,13 @@
 import { icons, screens } from "@/constants";
 import { stacks } from "@/constants";
 import { heights } from "@/constants/heights.const";
-import { HomeScreen, WaitingRelease, Rent, ProfileScreen, MarketPlace } from "@/pages";
+import { HomeScreen, WaitingRelease, Lease, ProfileScreen, MarketPlace } from "@/pages";
 import { HEIGHT_SCREEN, verticalScale } from "@/utils";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SvgXml } from "react-native-svg";
 const BotNav = () => {
     const Tab = createBottomTabNavigator();
-
+    const iconSize = heights.BUTTON_ICON
     return (
         <Tab.Navigator
             screenOptions={{
@@ -26,6 +26,8 @@ const BotNav = () => {
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
                             xml={focused ? icons.HOME_ACTIVE : icons.HOME}
+                            width={iconSize}
+                            height={iconSize}
                         />
                     ),
                 }}
@@ -37,6 +39,8 @@ const BotNav = () => {
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
                             xml={focused ? icons.PROJECT_ACTIVE : icons.PROJECT}
+                            width={iconSize}
+                            height={iconSize}
                         />
                     ),
                 }}
@@ -48,19 +52,23 @@ const BotNav = () => {
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
-                            xml={focused ? icons.INVEST_ACTIVE : icons.INVEST}
+                            xml={focused ? icons.MARKETPLACE_ACTIVE : icons.MARKETPLACE}
+                            width={iconSize}
+                            height={iconSize}
                         />
                     ),
                 }}
             />
 
             <Tab.Screen
-                name={screens.RENT}
-                component={WaitingRelease}
+                name={screens.LEASE}
+                component={Lease}
                 options={{
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
-                            xml={focused ? icons.RENT_ACTIVE : icons.RENT}
+                            xml={focused ? icons.LEASE_ACTIVE : icons.LEASE}
+                            width={iconSize}
+                            height={iconSize}
                         />
                     ),
                 }}
@@ -72,6 +80,8 @@ const BotNav = () => {
                     tabBarIcon: ({ focused }) => (
                         <SvgXml
                             xml={focused ? icons.PROFILE_ACTIVE : icons.PROFILE}
+                            width={iconSize}
+                            height={iconSize}
                         />
                     ),
                 }}
