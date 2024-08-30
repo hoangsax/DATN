@@ -7,10 +7,10 @@ import { fontSize, horizontalScale, verticalScale } from "@/utils";
 import { SvgXml } from "react-native-svg";
 
 interface SearchBarProps {
-    setWidth?: DimensionValue
+    setWidth?: DimensionValue;
 }
 
-export const SearchBar = ({setWidth}: SearchBarProps) => {
+export const SearchBar = ({ setWidth }: SearchBarProps) => {
     const colors = useSelector((state: RootState) => state.theme.palette);
 
     return (
@@ -18,7 +18,10 @@ export const SearchBar = ({setWidth}: SearchBarProps) => {
             style={[
                 styles.container,
                 defStyles.shadowBox,
-                { backgroundColor: colors.BG_CARD, width: setWidth? setWidth : horizontalScale(251)  },
+                {
+                    backgroundColor: colors.BG_CARD,
+                    width: setWidth ? setWidth : horizontalScale(251),
+                },
             ]}
         >
             <SvgXml style={styles.icon} xml={icons.SEARCH} />
@@ -36,7 +39,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         borderWidth: 0,
         borderRadius: 10,
-        height: 51,
+        height: verticalScale(51),
         paddingVertical: verticalScale(17),
         paddingHorizontal: horizontalScale(20),
         gap: horizontalScale(8),

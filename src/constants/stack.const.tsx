@@ -5,4 +5,5 @@ export const stacks = {
     PROFILESTACK: 'ProfileStack',
     MYTABS: 'MyTabs',
     LOGINSTACK: 'LoginStack',
+    PROJECTSTACK: 'ProjectStack',
 }

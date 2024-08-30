@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 interface ButtonProps {
     icon?: any,
     backgroundColor?: string,
-    size?: 'small' | 'medium' | 'large' | number,
+    size?: 'tiny' | 'small' | 'medium' | 'large' | number,
     radius?: number,
     onPress?: () => void,
 }
@@ -26,7 +26,7 @@ const ButtonIcon = (props: ButtonProps) => {
         },
         button: {
             backgroundColor: bg,
-            padding     : verticalScale(17),
+            padding     : verticalScale(24 * siz/40),
             borderRadius: radius? radius : 100,
             alignItems: 'center'
         },
@@ -41,6 +41,9 @@ const ButtonIcon = (props: ButtonProps) => {
         backgroundColor && setBg(backgroundColor)
         icon && setIco(icon)
         switch (size) {
+            case 'tiny':
+                setSiz(horizontalScale(10))
+                break;
             case 'small':
                 setSiz(horizontalScale(20))
                 break;

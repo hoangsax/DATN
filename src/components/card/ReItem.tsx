@@ -1,5 +1,5 @@
 import { RootState } from "@/store";
-import { horizontalScale, verticalScale } from "@/utils";
+import { formatNumberWithRegex, horizontalScale, verticalScale } from "@/utils";
 import React, { useEffect } from "react";
 import {
     ImageBackground,
@@ -21,10 +21,11 @@ const IMG_HW = horizontalScale(90);
 interface LongCardProps {
     containerStyle?: StyleProp<ViewStyle>;
     ratio?: number;
-    data: RealEstateItemData;
+    data: any;
+    onPress: () => void;
 }
 
-export const LongCard = ({ containerStyle, data }: LongCardProps) => {
+export const ReItem = ({ containerStyle, data, onPress }: LongCardProps) => {
     const Colors = useSelector((state: RootState) => state.theme.palette);
     const styles = StyleSheet.create({
         container: {
@@ -41,6 +42,7 @@ export const LongCard = ({ containerStyle, data }: LongCardProps) => {
             alignItems: "center",
         },
         detail: {
+            width: "100%",
             flex: 1,
         },
         progress: {
@@ -63,9 +65,10 @@ export const LongCard = ({ containerStyle, data }: LongCardProps) => {
         },
         re_location: {
             flexDirection: "row",
+            height: "auto",
             gap: verticalScale(2),
         },
-        re_info: { flex: 2.5 },
+        re_info: { flex: 2.5, gap: verticalScale(5) },
         re_bot: {
             flexDirection: "row",
             flex: 1,
@@ -79,10 +82,10 @@ export const LongCard = ({ containerStyle, data }: LongCardProps) => {
             paddingLeft: horizontalScale(3),
         },
         re_price: {
-            flex: 2,
+            flex: 3,
             flexDirection: "row",
             alignItems: "center",
-            marginLeft: horizontalScale(-5),
+            marginLeft: horizontalScale(20),
         },
     });
 
@@ -93,6 +96,7 @@ export const LongCard = ({ containerStyle, data }: LongCardProps) => {
     return (
         <TouchableOpacity
             style={[styles.container, styles.progress, containerStyle]}
+            onPress={onPress}
         >
             <ImageBackground
                 style={styles.imgContainer}
@@ -102,24 +106,34 @@ export const LongCard = ({ containerStyle, data }: LongCardProps) => {
                 <View style={styles.re_top}>
                     <View style={styles.re_investor}>
                         <UIText
-                            value={`${data.investors}`}
+                            value={`${data.reManagements.length}`}
                             fWeight={"bold"}
                             color={"#5d995d"}
                         />
                         <UIText value={` Nhà đầu tư`} />
                     </View>
-                    <ReType value={data.type} />
+                    <ReType value={data.reType} />
                 </View>
                 <View style={styles.re_info}>
-                    <UIText value={data.name} fSize={25} fWeight={"bold"} />
-                    <View style={styles.re_location}>
+                    <UIText
+                        value={data.tokenName}
+                        fSize={20}
+                        fWeight={"bold"}
+                    />
+                    <View style={[styles.re_location, { width: "100%" }]}>
                         <SvgXml
                             xml={icons.LOCATION_FILL}
                             height={15}
                             width={15}
                         />
                         <UIText
-                            value={data.location}
+                            value={
+                                data.street +
+                                ", " +
+                                data.ward +
+                                ", " +
+                                data.district
+                            }
                             color={Colors.TEXT_STD_FORM}
                             fSize={12}
                         />
@@ -129,12 +143,19 @@ export const LongCard = ({ containerStyle, data }: LongCardProps) => {
                     <View style={styles.re_token}>
                         <SvgXml xml={icons.TOKEN} />
                         <UIText
-                            value={`${data.boughtTokens}/${data.totalTokens}`}
+                            value={`${
+                                data.currentSupply ? data.currentSupply : 0
+                            }/${data.supplyTotal ? data.supplyTotal : 0}`}
                         />
                     </View>
                     <View style={styles.re_price}>
                         <SvgXml xml={icons.DONG} />
-                        <UIText value={data.price} />
+                        <UIText
+                            style={{ justifyContent: "flex-end" }}
+                            value={formatNumberWithRegex(
+                                data.valuationPerToken
+                            )}
+                        />
                     </View>
                 </View>
             </View>

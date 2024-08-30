@@ -1,0 +1,50 @@
+  -Home
+  -Phát Hành
+     (các thẻ con thiết kế giống nhau)
+      -Chờ phát hành
+      -Đang phát hành
+      -Đã kết thúc
+  -Giao dịch
+      -Danh sách thẻ giao dịch
+            -Mua
+            -Bán
+  -Thuê
+      -Danh sách thẻ bất động sản
+            -Tổng quan
+            -Token
+                  -Thông tin token
+                  -Thu nhập
+            -Thuê
+                  -Thông tin thuê
+                  -Lịch sử thuê
+            -Thống kê
+                  -Lịch sử giá
+                  -Biểu đồ (?)
+                  -Lịch sử giao dịch (?)
+                  -Cung cầu
+                  -Lịch sử thu nhập
+            -Tài chính
+                  -Doanh thu
+                  -Chi phí
+                  -Lợi nhuận
+                  -Dự toán thu nhập
+                  -Dự toán đầu tư (?)
+                  -Chỉ số đầu tư 
+            -Sự kiện
+  -Dashboard
+  -Thông tin cá nhân
+      -Tổng quan
+      -Số dư ví
+	(các thẻ con thiết kế giống nhau)
+            -StableCoin
+            -Token của tôi
+            -Token đang mua
+            -Token đang bán
+      -Danh mục đầu  tư
+      -Lịch sử
+      -Cài đặt
+            -Hồ sơ
+            -Xác minh danh tính
+            -Bảo mật
+            -Tùy chọn
+      -Nút Đăng xuất

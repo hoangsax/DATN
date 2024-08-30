@@ -8,6 +8,7 @@ export const screens = {
     SEARCH: 'Search',
     ADD_PROPERTY: 'AddProperty',
     PROJECT: 'Project',
-    RENT: 'Rent',
+    REINFO: 'ReInfo',
+    LEASE: 'Lease',
     INVEST: 'Invest'
 }

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SelectableOptions } from "./type";
 import { useAppSelector } from "@/store/hooks";
-import { UIText } from "@/components";
+import { UIText } from "@/components/text";
 
 interface SortingProps {
     name: string;
@@ -29,45 +29,53 @@ export const SelectOptions = ({
     const Colors = useAppSelector((state) => state.theme.palette);
     return (
         <Modal
-            animationType="slide"
             transparent={true}
             visible={visible}
             onRequestClose={toggleVisible}
         >
-            <View
-                style={styles.centeredView}
-            >
-                <TouchableOpacity style={{height: '30%'}} onPress={toggleVisible} />
-                <View
-                    style={[styles.modalView, { backgroundColor: Colors.MAIN }]}
-                >
-                    <UIText style={styles.modalTitle} value={`${name} By:`} />
-                    <FlatList
-                        data={options}
-                        renderItem={({ item, index }) => (
-                            <TouchableHighlight
-                            underlayColor={Colors.BG_CARD_MAIN}
-                                key={item.key}
-                                style={[
-                                    styles.optionButton,
-                                    {
-                                        borderColor: Colors.BG_CARD_MAIN,
-                                        borderTopWidth: index == 0 ? 1 : 0,
-                                    },
-                                ]}
-                                onPress={() => {
-                                    toggleVisible && toggleVisible();
-                                    setReturnValue(item.key);
-                                }}
-                            >
-                                <UIText
-                                    style={styles.optionText}
-                                    value={item.label}
-                                />
-                            </TouchableHighlight>
-                        )}
+            <View style={styles.centeredView}>
+                <Modal animationType="slide" transparent={true} >
+                    <TouchableOpacity
+                        style={{ height: "30%" }}
+                        onPress={toggleVisible}
                     />
-                </View>
+                    <View
+                        style={[
+                            styles.modalView,
+                            { backgroundColor: Colors.MAIN },
+                        ]}
+                    >
+                        <UIText
+                            style={styles.modalTitle}
+                            value={`${name} By:`}
+                        />
+                        <FlatList
+                            data={options}
+                            renderItem={({ item, index }) => (
+                                <TouchableHighlight
+                                    underlayColor={Colors.BG_CARD_MAIN}
+                                    key={item.key}
+                                    style={[
+                                        styles.optionButton,
+                                        {
+                                            borderColor: Colors.BG_CARD_MAIN,
+                                            borderTopWidth: index == 0 ? 1 : 0,
+                                        },
+                                    ]}
+                                    onPress={() => {
+                                        toggleVisible && toggleVisible();
+                                        setReturnValue(item.key);
+                                    }}
+                                >
+                                    <UIText
+                                        style={styles.optionText}
+                                        value={item.label}
+                                    />
+                                </TouchableHighlight>
+                            )}
+                        />
+                    </View>
+                </Modal>
             </View>
         </Modal>
     );
@@ -87,7 +95,7 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     centeredView: {
-        backgroundColor: 'rgba(139, 69, 19, 0.5)',
+        backgroundColor: "rgba(139, 69, 19, 0.5)",
         flex: 1,
         justifyContent: "flex-end",
         height: "100%",
@@ -114,18 +122,5 @@ const styles = StyleSheet.create({
     },
     optionText: {
         paddingLeft: 25,
-    },
-    cancelButton: {
-        backgroundColor: "#FF6347",
-        borderRadius: 10,
-        padding: 10,
-        marginTop: 10,
-        width: 200,
-        alignItems: "center",
-    },
-    cancelText: {
-        color: "white",
-        fontWeight: "bold",
-        textAlign: "center",
     },
 });

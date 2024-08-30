@@ -1,13 +1,14 @@
 import { Button } from "@/components/button";
 import { LongCard } from "@/components/card/LongCard";
 import { UIText } from "@/components/text";
-import { weight } from "@/constants";
+import { defStyles, weight } from "@/constants";
 import { heights } from "@/constants/heights.const";
 import { RootState } from "@/store";
 import {
     HEIGHT_SCREEN,
     SelectOptions,
     SelectableOptions,
+    WIDTH_SCREEN,
     fontSize,
     horizontalScale,
     verticalScale,
@@ -20,26 +21,68 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
+    Text,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { RealEstateItemData } from "@/constants/types";
-import client, { GET_REDATA, GET_TOKEN_INFO } from "@/client";
+import {
+    RealEstateItemData,
+    REInfoType,
+    STOInfo,
+    TokenData,
+    TokenInfo,
+} from "@/constants/types";
+import client, {
+    GET_RE_INFO,
+    GET_REDATA,
+    GET_STOINFOS,
+    localClient,
+} from "@/client";
 import { login } from "@/store/auth";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchReData } from "@/store/redata";
+import Animated, {
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
+} from "react-native-reanimated";
+import { ReItem } from "@/components";
+import { REinfo_modal } from "./utils/REinfo_modal";
+import { refreshData } from "@/store/fetch";
 
 interface SectionBarProps {
     tabOn: number;
     setTabOn: (num: number) => void;
     setRef: () => void;
 }
-const TABLIST_HEIGHT = verticalScale(45)
+const TABLIST_HEIGHT = verticalScale(45);
 const fSize = fontSize(14);
 const SectionBar = ({ tabOn, setTabOn, setRef }: SectionBarProps) => {
     const Colors = useAppSelector((state) => state.theme.palette);
     const tabOnColor = Colors.BG_CARD_MAIN;
-    const textColorOn = Colors.TEXT_STD_MAIN
-    const textColorOff = Colors.MAIN
+    const textColorOn = Colors.TEXT_STD_MAIN;
+    const textColorOff = Colors.MAIN;
+    const indicatorPos = useSharedValue(0);
+    const TAB_WIDTH =
+        (WIDTH_SCREEN -
+            horizontalScale(10) * 2 /* margin of 2 sides */ -
+            horizontalScale(3) * 6 /* 6 gap between tab */ -
+            2) /* 2 2-width separators */ /
+        3;
+    const handleTabPress = (index: number) => {
+        setTabOn(index);
+        indicatorPos.value = withTiming(
+            index *
+                (TAB_WIDTH +
+                    horizontalScale(3) * 2 /* 2 margin of each tab */ +
+                    1) /* separator width */,
+            { duration: 300 }
+        );
+        setRef();
+    };
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [{ translateX: indicatorPos.value }],
+        };
+    });
     return (
         <View
             style={[
@@ -50,71 +93,38 @@ const SectionBar = ({ tabOn, setTabOn, setRef }: SectionBarProps) => {
                 },
             ]}
         >
+            <Animated.View
+                style={[
+                    styles.tabIndicator,
+                    defStyles.shadowBox,
+                    animatedStyle,
+                    {
+                        width: TAB_WIDTH,
+                        backgroundColor: Colors.BG_TAB_ON,
+                    },
+                ]}
+            />
             <View style={styles.listContent}>
-                <TouchableOpacity
-                    style={[
-                        styles.tab,
-                        {
-                            backgroundColor:
-                                tabOn == 0 ? tabOnColor : "transparent",
-                        },
-                    ]}
-                    onPress={() => {
-                        setTabOn(0);
-                        setRef();
-                    }}
-                >
-                    <UIText
-                        value="Đang mở"
-                        fSize={fSize}
-                        fWeight={weight.bold}
-                        color={tabOn == 0 ? textColorOn : textColorOff}
-                    />
-                </TouchableOpacity>
-                <View style={styles.seperator} />
-                <TouchableOpacity
-                    style={[
-                        styles.tab,
-                        {
-                            backgroundColor:
-                                tabOn == 1 ? tabOnColor : "transparent",
-                        },
-                    ]}
-                    onPress={() => {
-                        setTabOn(1);
-                        setRef();
-                    }}
-                >
-                    <UIText
-                        value="Sắp mở"
-                        fSize={fSize}
-                        fWeight={weight.bold}
-                        
-                        color={tabOn == 1 ? textColorOn : textColorOff}
-                    />
-                </TouchableOpacity>
-                <View style={styles.seperator} />
-                <TouchableOpacity
-                    style={[
-                        styles.tab,
-                        {
-                            backgroundColor:
-                                tabOn == 2 ? tabOnColor : "transparent",
-                        },
-                    ]}
-                    onPress={() => {
-                        setTabOn(2);
-                        setRef();
-                    }}
-                >
-                    <UIText
-                        value="Kết thúc"
-                        fSize={fSize}
-                        fWeight={weight.bold}
-                        
-                        color={tabOn == 2 ? textColorOn : textColorOff}
-                    />
-                </TouchableOpacity>
+                {["Đang mở", "Sắp mở", "Kết thúc"].map((title, index) => (
+                    <React.Fragment key={index}>
+                        <TouchableOpacity
+                            style={[styles.tab]}
+                            onPress={() => {
+                                handleTabPress(index);
+                            }}
+                        >
+                            <UIText
+                                value={title}
+                                fSize={fSize}
+                                fWeight={weight.bold}
+                                color={
+                                    tabOn == index ? textColorOn : textColorOff
+                                }
+                            />
+                        </TouchableOpacity>
+                        {index < 2 && <View style={styles.seperator} />}
+                    </React.Fragment>
+                ))}
             </View>
         </View>
     );
@@ -125,124 +135,142 @@ interface ButtonListProps {
     setFilterOptions: (value: any) => void;
 }
 
-const ButtonList = React.memo(({
-    setSortOptions,
-    setFilterOptions
-}: ButtonListProps) => {
-    const bstyles = StyleSheet.create({
-        container: {
-            flexDirection: "row",
-            gap: horizontalScale(10),
-            paddingVertical: verticalScale(10),
-        },
-    });
+const ButtonList = React.memo(
+    ({ setSortOptions, setFilterOptions }: ButtonListProps) => {
+        const bstyles = StyleSheet.create({
+            container: {
+                flexDirection: "row",
+                gap: horizontalScale(10),
+                paddingVertical: verticalScale(10),
+            },
+        });
 
-    const [filterOptions] = useState<SelectableOptions[]>([
-        { key: "villa", label: "Villa" },
-        { key: "estate", label: "Estate" },
-        { key: "hall", label: "Hall" },
-        { key: "house", label: "House" },
-        { key: null, label: "None" },
-    ]);
+        const [filterOptions] = useState<SelectableOptions[]>([
+            { key: "Villa", label: "Villa" },
+            { key: "Estate", label: "Estate" },
+            { key: "Hall", label: "Hall" },
+            { key: "House", label: "House" },
+            { key: null, label: "None" },
+        ]);
 
-    const [sortOptions] = useState<SelectableOptions[]>([
-        { key: "name", label: "Name" },
-        { key: "totalTokens", label: "Total Tokens" },
-        { key: "price", label: "Price" },
-        { key: "investors", label: "Investors" },
-    ]);
+        const [sortOptions] = useState<SelectableOptions[]>([
+            { key: "name", label: "Name" },
+            { key: "totalTokens", label: "Total Tokens" },
+            { key: "price", label: "Price" },
+            { key: "investors", label: "Investors" },
+        ]);
 
-    const [sortModal, setSortModal] = useState(false);
-    const [filterModal, setFilterModal] = useState(false);
+        const [sortModal, setSortModal] = useState(false);
+        const [filterModal, setFilterModal] = useState(false);
 
-    const handleSortPress = () => {
-        setSortModal((prev) => !prev);
-    };
+        const handleSortPress = () => {
+            setSortModal((prev) => !prev);
+        };
 
-    const handleFilterPress = () => {
-        setFilterModal((prev) => !prev);
-    };
+        const handleFilterPress = () => {
+            setFilterModal((prev) => !prev);
+        };
 
-    return (
-        <View
-            style={[
-                bstyles.container,
-            ]}
-        >
-            <Button.Util title="Sort" icon="SORT" onPress={handleSortPress} />
-            <SelectOptions
-                name="Sort"
-                options={sortOptions}
-                visible={sortModal}
-                toggleVisible={handleSortPress}
-                setReturnValue={setSortOptions}
-            />
-            <Button.Util
-                title="Filter"
-                icon="FILTER"
-                onPress={handleFilterPress}
-            />
-            <SelectOptions
-                name="Filter"
-                options={filterOptions}
-                visible={filterModal}
-                toggleVisible={handleFilterPress}
-                setReturnValue={setFilterOptions}
-            />
-        </View>
-    );
-});
+        return (
+            <View style={[bstyles.container]}>
+                <Button.Util
+                    title="Sort"
+                    icon="SORT"
+                    onPress={handleSortPress}
+                />
+                <SelectOptions
+                    name="Sort"
+                    options={sortOptions}
+                    visible={sortModal}
+                    toggleVisible={handleSortPress}
+                    setReturnValue={setSortOptions}
+                />
+                <Button.Util
+                    title="Filter"
+                    icon="FILTER"
+                    onPress={handleFilterPress}
+                />
+                <SelectOptions
+                    name="Filter"
+                    options={filterOptions}
+                    visible={filterModal}
+                    toggleVisible={handleFilterPress}
+                    setReturnValue={setFilterOptions}
+                />
+            </View>
+        );
+    }
+);
 
 export const WaitingRelease = () => {
+    const DataState = useSelector((state: RootState) => state.data.returnData);
+
     const [tabOn, setTabOn] = useState(0);
     const scrollRef = useRef<FlatList>(null);
-    const dispatch = useAppDispatch();
-    // async function fetchData() {
-    //     try {
-    //       const response = await client.query({
-    //         query: GET_REDATA
-    //       });
-    //       console.log(response.data);
-    //     } catch (error) {
-    //       console.error("Error fetching data: ", error);
-    //     }
-    //   }
     const Colors = useSelector((state: RootState) => state.theme.palette);
     const [ButtonListH, setButtonListH] = useState<number>(0);
     const handleLayout = (event: LayoutChangeEvent) => {
         const { height } = event.nativeEvent.layout;
         setButtonListH(height);
     };
-    const [initData, setInitData] = useState<RealEstateItemData[]>(DATA);
-    const [renderData, setRenderData] =
-        useState<RealEstateItemData[]>(initData);
+    const [constData, setConstData] = useState<any>([]);
+    const [initData, setInitData] = useState<any>([]);
+    const [renderData, setRenderData] = useState<any>([]);
     const [sortByOption, setSortByOption] = useState("name");
     const [filterByOption, setFilterByOption] = useState<any>(null);
-    const handleTab = () => {
+
+    const [reInfoModal, setReInfoModal] = useState(false);
+    const [reInfoParam, setReInfoParam] = useState<any>();
+    const toggleReInfoModal = (item: any) => {
+        setReInfoParam(item);
+        setReInfoModal((prev) => !prev);
+    };
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string>("");
+    const handleTab = (data: any) => {
+        const currentEpochTime = Math.floor(Date.now() / 1000);
         if (tabOn == 0) {
-            setRenderData(initData.filter((item) => item.status == "ongoing"));
+            return [...data].filter(
+                (item) =>
+                    item.isSTOs == "Đã phát hành" &&
+                    item.startAt - currentEpochTime < 0 &&
+                    item.endAt - currentEpochTime > 0
+            );
         } else if (tabOn == 1) {
-            setRenderData(initData.filter((item) => item.status == "waiting"));
+            return [...data].filter(
+                (item) =>
+                    item.isSTOs == "Chưa phát hành" ||
+                    item.startAt - currentEpochTime > 0
+            );
         } else if (tabOn == 2) {
-            setRenderData(initData.filter((item) => item.status == "finished"));
-        }
+            return [...data].filter(
+                (item) =>
+                    item.isSTOs == "Đã phát hành" &&
+                    item.endAt - currentEpochTime < 0
+            );
+        } else return data;
     };
 
-    const handleSort = () => {
+    const handleSort = (data: any) => {
         if (sortByOption === "name") {
-            setInitData(initData.sort((a, b) => a.name.localeCompare(b.name)));
-        } else if (sortByOption === "price") {
-            setInitData(initData.sort((a, b) => a.price - b.price));
-        } else if (sortByOption === "investors") {
-            setInitData(initData.sort((a, b) => a.investors - b.investors));
-        } else if (sortByOption === "totalTokens") {
-            setInitData(initData.sort((a, b) => a.totalTokens - b.totalTokens));
-        }
+            return [...data].sort((a, b) =>
+                a.tokenName.localeCompare(b.tokenName)
+            );
+            // } else if (sortByOption === "price") {
+            //     return [...data].sort((a, b) => a.price - b.price);
+            // } else if (sortByOption === "investors") {
+            //     return [...data].sort((a, b) => a.investors - b.investors);
+            // } else if (sortByOption === "totalTokens") {
+            //     return [...data].sort((a, b) => a.totalTokens - b.totalTokens);
+        } else return data;
     };
+
     const handleFilter = () => {
         if (filterByOption) {
-            setInitData(DATA.filter((item) => item.type == filterByOption));
-        } else setInitData(DATA);
+            return constData.filter(
+                (item: any) => item.reType == filterByOption
+            );
+        } else return constData;
     };
 
     const handleRef = () => {
@@ -250,42 +278,30 @@ export const WaitingRelease = () => {
             scrollRef.current.scrollToOffset({ animated: true, offset: 0 });
         }
     };
-    // const reDATA = useAppSelector((state)=>state.redata)
-    // useEffect(() => {
-    //     console.log("-------")
-    //     dispatch(fetchReData())
-    //     console.log(reDATA.securityTokens)
-    // },[reDATA.securityTokens]);
 
     useEffect(() => {
-        handleTab();
+        if (DataState) {
+            setConstData([...DataState]);
+            setInitData([...DataState]);
+        }
+    }, [DataState]);
+
+    useEffect(() => {
+        let tabData = handleTab(initData);
+        setRenderData(tabData);
         handleRef();
     }, [tabOn, initData]);
 
     useEffect(() => {
-        handleSort();
-        handleTab();
-        handleRef();
-    }, [sortByOption]);
-
-    useEffect(() => {
-        handleFilter();
-    }, [filterByOption]);
+        let filteredData = handleFilter();
+        let sortedData = handleSort(filteredData);
+        setInitData(sortedData);
+    }, [sortByOption, filterByOption]);
 
     return (
         <View style={[styles.container, { backgroundColor: Colors.MAIN }]}>
-            <View
-                style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: heights.BOTNAV,
-                }}
-            >
-                <UIText
-                    value="Phát Hành Bất Động Sản"
-                    fWeight={"bold"}
-                    fSize={fSize + 2}
-                />
+            <View style={[styles.header, { backgroundColor: Colors.BG_MAIN }]}>
+                <UIText value="Phát Hành" fWeight={"bold"} fSize={fSize + 10} />
             </View>
             <SectionBar tabOn={tabOn} setTabOn={setTabOn} setRef={handleRef} />
             <View style={styles.main}>
@@ -295,30 +311,48 @@ export const WaitingRelease = () => {
                         setSortOptions={setSortByOption}
                     />
                 </View>
-                <FlatList
-                    ref={scrollRef}
-                    style={[
-                        styles.reItems,
-                        {
-                            height:
-                                HEIGHT_SCREEN - //Full screen height
-                                heights.STATUS_BAR - //status bar height
-                                TABLIST_HEIGHT - //<TabList />
-                                heights.BOTNAV * 2 - //bottom navigator height + header height
-                                ButtonListH, //<ButtonList />
-                        },
-                    ]}
-                    // showsVerticalScrollIndicator={false}
-                    data={renderData}
-                    renderItem={({ item }) => (
-                        <LongCard
-                            containerStyle={{
-                                marginBottom: horizontalScale(10),
-                            }}
-                            data={item}
+                {!DataState && <Text>Loading...</Text>}
+                {error && <Text>error: {error}</Text>}
+                <View>
+                    {DataState && (
+                        <FlatList
+                            ref={scrollRef}
+                            style={[
+                                styles.reItems,
+                                {
+                                    height:
+                                        HEIGHT_SCREEN - //Full screen height
+                                        heights.STATUS_BAR - //status bar height
+                                        TABLIST_HEIGHT - //<TabList />
+                                        heights.BOTNAV * 2.5 - //bottom navigator height + header height
+                                        verticalScale(10) - //margin bottom of header
+                                        ButtonListH, //<ButtonList />
+                                },
+                            ]}
+                            // showsVerticalScrollIndicator={false}
+                            data={renderData}
+                            renderItem={({ item, index }) => (
+                                <React.Fragment key={index}>
+                                    <ReItem
+                                        containerStyle={[
+                                            {
+                                                marginBottom: verticalScale(10),
+                                            },
+                                            defStyles.shadowBox,
+                                        ]}
+                                        data={item}
+                                        onPress={() => toggleReInfoModal(item)}
+                                    />
+                                </React.Fragment>
+                            )}
                         />
                     )}
-                />
+                    <REinfo_modal
+                        visible={reInfoModal}
+                        setVisible={() => setReInfoModal((prev) => !prev)}
+                        data={reInfoParam}
+                    />
+                </View>
             </View>
         </View>
     );
@@ -328,9 +362,23 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    header: {
+        justifyContent: "center",
+        height: heights.BOTNAV * 1.5,
+        paddingHorizontal: horizontalScale(10),
+        marginBottom: verticalScale(10),
+    },
     tabList: {
         height: TABLIST_HEIGHT,
         marginHorizontal: horizontalScale(10),
+        borderRadius: 99,
+    },
+    tabIndicator: {
+        marginVertical: verticalScale(3),
+        position: "absolute",
+        bottom: 0,
+        left: horizontalScale(3),
+        height: TABLIST_HEIGHT - 2 * verticalScale(3),
         borderRadius: 99,
     },
     listContent: {
@@ -341,11 +389,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     reItems: {
-        gap: verticalScale(10),
         paddingRight: horizontalScale(10),
     },
     tab: {
-        marginHorizontal: 3,
+        marginHorizontal: horizontalScale(3),
         flex: 1,
         height: "100%",
         justifyContent: "center",
@@ -359,6 +406,52 @@ const styles = StyleSheet.create({
     },
     seperator: { height: "60%", width: 1, backgroundColor: "black" },
 });
+const PLACEHOLDER: TokenData[] = [
+    {
+        isSTOs: "Đã phát hành",
+        isManagement: "Đã thuê",
+        id: "1",
+        isValuation: "Đã định giá",
+        fundTokenInfoAddress: "0x7b0ed8dd6834e9b078fba94454d395a4343b04bc",
+        tokenId: "1",
+        tokenName: "'gg'",
+        tokenSymbol: "'gg'",
+        tokenValuations: [
+            {
+                valuation: "3000",
+            },
+            {
+                valuation: "30000000000",
+            },
+        ],
+        address: "123 Main St, Ward 1, District 5, Province A",
+        area: "120 sqm",
+        bathRoom: "2",
+        bedRoom: "3",
+        certificateOfLand: "CERT123",
+        constructionLicense: "LIC123",
+        district: "District 5",
+        expiryDate: "2030-12-31",
+        floor: "5",
+        floorArea: "90 sqm",
+        fundREAddress: "0xFundAddress1",
+        imagesList: ["image1.jpg", "image2.jpg"],
+        livingRoom: "1",
+        parcelOfLand: "Parcel 45",
+        province: "Province A",
+        rEChart: "chart1.png",
+        reManagements: ["management1", "management2"],
+        reType: "Apartment",
+        reValuations: ["valuation1", "valuation2"],
+        registrationDeclaration: "REG123",
+        street: "123 Main St",
+        testRecords: "test1.pdf",
+        useForm: "Residential",
+        useSource: "Ownership",
+        userTarget: "Family",
+        ward: "Ward 1",
+    },
+];
 
 const DATA: RealEstateItemData[] = [
     {

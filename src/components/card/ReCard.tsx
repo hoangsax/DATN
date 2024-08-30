@@ -9,37 +9,38 @@ import {
 } from "react-native";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
-import { fontSize, horizontalScale, verticalScale } from "@/utils";
+import { fontSize, horizontalScale, verticalScale, WIDTH_SCREEN } from "@/utils";
 import { SvgXml } from "react-native-svg";
-import { icons } from "@/constants";
+import { icons, images, RealEstateItemData } from "@/constants";
 import { UIText } from "../text";
 import { Button } from "../button";
 import { defStyles } from "@/constants";
-export interface ReCardData {
-    image: ImageURISource;
-    name: string;
-    price: number;
-    location: string;
-}
 
 interface ReCardProps {
-    data?: ReCardData;
+    data?: RealEstateItemData;
     onPress?: () => void;
     small?: boolean;
     onFav?: () => void
 }
 
-const defData = {
-    image: require("@/assets/images/recard_default.jpg"),
-    name: "Lorem House",
-    price: 4,
-    location: "random",
-};
+const defData: RealEstateItemData = {
+    status: "finished",
+    type: "estate",
+    name: "Elm Estate",
+    location: "753 Elm Street, Maplewood",
+    totalTokens: 900,
+    boughtTokens: 294,
+    price: 399.77,
+    image: {
+        uri: "https://example.com/images/elm_estate.jpg",
+    },
+    investors: 14,
+}
 
 export const ReCard = React.memo(({ data, onPress, small, onFav }: ReCardProps) => {
     const colors = useSelector((state: RootState) => state.theme.palette);
-    const scale = small ? 3 / 4 : 1;
-    const [item, setItem] = useState<ReCardData>(defData);
+    const scale = small ? (WIDTH_SCREEN - horizontalScale(10) * 3) / (horizontalScale(242) * 2) : 1;
+    const [item, setItem] = useState<RealEstateItemData>(defData);
     useEffect(() => {
         if (data) {
             setItem(data);
@@ -49,12 +50,12 @@ export const ReCard = React.memo(({ data, onPress, small, onFav }: ReCardProps) 
         container: {
             justifyContent: "center",
             alignContent: "center",
-            height: horizontalScale(223) * scale,
             width: horizontalScale(242) * scale,
-            borderRadius: horizontalScale(10) * scale,
+            borderRadius: 15,
         },
         imgWrapper: {
             backgroundColor: colors.MAIN,
+            borderRadius: 99,
         },
         img: {
             height: horizontalScale(155) * scale,
@@ -62,7 +63,7 @@ export const ReCard = React.memo(({ data, onPress, small, onFav }: ReCardProps) 
             borderRadius: 15,
         },
         detail: {
-            flex: 2,
+            flex: 2.5,
             height: horizontalScale(242 - 155) * scale,
             width: "auto",
             paddingHorizontal: horizontalScale(11) * scale,
@@ -95,7 +96,8 @@ export const ReCard = React.memo(({ data, onPress, small, onFav }: ReCardProps) 
         fav: {
             flex: 1,
             justifyContent: "center",
-            alignItems: "center",
+            alignItems: "flex-end",
+            paddingRight: horizontalScale(11) * scale
         },
     });
 
@@ -112,7 +114,7 @@ export const ReCard = React.memo(({ data, onPress, small, onFav }: ReCardProps) 
                 <Image
                     resizeMode="cover"
                     style={styles.img}
-                    source={require("@/assets/images/recard_default.jpg")}
+                    source={images.RECARD_DEFAULLT}
                 />
             </View>
             <View style={styles.bottom}>
@@ -131,7 +133,7 @@ export const ReCard = React.memo(({ data, onPress, small, onFav }: ReCardProps) 
                     <Button.Icon
                         backgroundColor={colors.BG_BTI_SUB}
                         icon={icons.SAVED}
-                        size="small"
+                        size={small? 'tiny' : 'small'}
                         radius={20}
                         onPress={onFav}
                     />
