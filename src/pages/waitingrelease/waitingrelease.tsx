@@ -21,18 +21,32 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
+    Text,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { RealEstateItemData } from "@/constants/types";
-import client, { GET_REDATA, GET_TOKEN_INFO } from "@/client";
+import {
+    RealEstateItemData,
+    REInfoType,
+    STOInfo,
+    TokenData,
+    TokenInfo,
+} from "@/constants/types";
+import client, {
+    GET_RE_INFO,
+    GET_REDATA,
+    GET_STOINFOS,
+    localClient,
+} from "@/client";
 import { login } from "@/store/auth";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchReData } from "@/store/redata";
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
     withTiming,
 } from "react-native-reanimated";
+import { ReItem } from "@/components";
+import { REinfo_modal } from "./utils/REinfo_modal";
+import { refreshData } from "@/store/fetch";
 
 interface SectionBarProps {
     tabOn: number;
@@ -132,10 +146,10 @@ const ButtonList = React.memo(
         });
 
         const [filterOptions] = useState<SelectableOptions[]>([
-            { key: "villa", label: "Villa" },
-            { key: "estate", label: "Estate" },
-            { key: "hall", label: "Hall" },
-            { key: "house", label: "House" },
+            { key: "Villa", label: "Villa" },
+            { key: "Estate", label: "Estate" },
+            { key: "Hall", label: "Hall" },
+            { key: "House", label: "House" },
             { key: null, label: "None" },
         ]);
 
@@ -189,58 +203,74 @@ const ButtonList = React.memo(
 );
 
 export const WaitingRelease = () => {
+    const DataState = useSelector((state: RootState) => state.data.returnData);
+
     const [tabOn, setTabOn] = useState(0);
     const scrollRef = useRef<FlatList>(null);
-    const dispatch = useAppDispatch();
-    // async function fetchData() {
-    //     try {
-    //       const response = await client.query({
-    //         query: GET_REDATA
-    //       });
-    //       console.log(response.data);
-    //     } catch (error) {
-    //       console.error("Error fetching data: ", error);
-    //     }
-    //   }
     const Colors = useSelector((state: RootState) => state.theme.palette);
     const [ButtonListH, setButtonListH] = useState<number>(0);
     const handleLayout = (event: LayoutChangeEvent) => {
         const { height } = event.nativeEvent.layout;
         setButtonListH(height);
     };
-    const [initData, setInitData] = useState<RealEstateItemData[]>(DATA);
-    const [renderData, setRenderData] =
-        useState<RealEstateItemData[]>(initData);
+    const [constData, setConstData] = useState<any>([]);
+    const [initData, setInitData] = useState<any>([]);
+    const [renderData, setRenderData] = useState<any>([]);
     const [sortByOption, setSortByOption] = useState("name");
     const [filterByOption, setFilterByOption] = useState<any>(null);
-    const handleTab = (data: RealEstateItemData[]) => {
+
+    const [reInfoModal, setReInfoModal] = useState(false);
+    const [reInfoParam, setReInfoParam] = useState<any>();
+    const toggleReInfoModal = (item: any) => {
+        setReInfoParam(item);
+        setReInfoModal((prev) => !prev);
+    };
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string>("");
+    const handleTab = (data: any) => {
+        const currentEpochTime = Math.floor(Date.now() / 1000);
         if (tabOn == 0) {
-            return [...data].filter((item) => item.status == "ongoing");
+            return [...data].filter(
+                (item) =>
+                    item.isSTOs == "Đã phát hành" &&
+                    item.startAt - currentEpochTime < 0 &&
+                    item.endAt - currentEpochTime > 0
+            );
         } else if (tabOn == 1) {
-            return [...data].filter((item) => item.status == "waiting");
+            return [...data].filter(
+                (item) =>
+                    item.isSTOs == "Chưa phát hành" ||
+                    item.startAt - currentEpochTime > 0
+            );
         } else if (tabOn == 2) {
-            return [...data].filter((item) => item.status == "finished");
-        }
-        else return data
+            return [...data].filter(
+                (item) =>
+                    item.isSTOs == "Đã phát hành" &&
+                    item.endAt - currentEpochTime < 0
+            );
+        } else return data;
     };
 
-    const handleSort = (data: RealEstateItemData[]) => {
+    const handleSort = (data: any) => {
         if (sortByOption === "name") {
-            return [...data].sort((a, b) => a.name.localeCompare(b.name));
-        } else if (sortByOption === "price") {
-            return [...data].sort((a, b) => a.price - b.price);
-        } else if (sortByOption === "investors") {
-            return [...data].sort((a, b) => a.investors - b.investors);
-        } else if (sortByOption === "totalTokens") {
-            return [...data].sort((a, b) => a.totalTokens - b.totalTokens);
-        }
-        else return data
+            return [...data].sort((a, b) =>
+                a.tokenName.localeCompare(b.tokenName)
+            );
+            // } else if (sortByOption === "price") {
+            //     return [...data].sort((a, b) => a.price - b.price);
+            // } else if (sortByOption === "investors") {
+            //     return [...data].sort((a, b) => a.investors - b.investors);
+            // } else if (sortByOption === "totalTokens") {
+            //     return [...data].sort((a, b) => a.totalTokens - b.totalTokens);
+        } else return data;
     };
 
     const handleFilter = () => {
         if (filterByOption) {
-            return DATA.filter((item) => item.type == filterByOption);
-        } else return DATA;
+            return constData.filter(
+                (item: any) => item.reType == filterByOption
+            );
+        } else return constData;
     };
 
     const handleRef = () => {
@@ -250,12 +280,20 @@ export const WaitingRelease = () => {
     };
 
     useEffect(() => {
-        setRenderData(handleTab(initData))
+        if (DataState) {
+            setConstData([...DataState]);
+            setInitData([...DataState]);
+        }
+    }, [DataState]);
+
+    useEffect(() => {
+        let tabData = handleTab(initData);
+        setRenderData(tabData);
         handleRef();
     }, [tabOn, initData]);
 
     useEffect(() => {
-        let filteredData = handleFilter()
+        let filteredData = handleFilter();
         let sortedData = handleSort(filteredData);
         setInitData(sortedData);
     }, [sortByOption, filterByOption]);
@@ -273,33 +311,48 @@ export const WaitingRelease = () => {
                         setSortOptions={setSortByOption}
                     />
                 </View>
-                <FlatList
-                    ref={scrollRef}
-                    style={[
-                        styles.reItems,
-                        {
-                            height:
-                                HEIGHT_SCREEN - //Full screen height
-                                heights.STATUS_BAR - //status bar height
-                                TABLIST_HEIGHT - //<TabList />
-                                heights.BOTNAV * 2.5 - //bottom navigator height + header height
-                                verticalScale(10) - //margin bottom of header
-                                ButtonListH, //<ButtonList />
-                        },
-                    ]}
-                    // showsVerticalScrollIndicator={false}
-                    data={renderData}
-                    renderItem={({ item, index }) => (
-                        <React.Fragment key={index}>
-                            <LongCard
-                            containerStyle={[{
-                                marginBottom: verticalScale(10)
-                            }, defStyles.shadowBox]}
-                            data={item}
+                {!DataState && <Text>Loading...</Text>}
+                {error && <Text>error: {error}</Text>}
+                <View>
+                    {DataState && (
+                        <FlatList
+                            ref={scrollRef}
+                            style={[
+                                styles.reItems,
+                                {
+                                    height:
+                                        HEIGHT_SCREEN - //Full screen height
+                                        heights.STATUS_BAR - //status bar height
+                                        TABLIST_HEIGHT - //<TabList />
+                                        heights.BOTNAV * 2.5 - //bottom navigator height + header height
+                                        verticalScale(10) - //margin bottom of header
+                                        ButtonListH, //<ButtonList />
+                                },
+                            ]}
+                            // showsVerticalScrollIndicator={false}
+                            data={renderData}
+                            renderItem={({ item, index }) => (
+                                <React.Fragment key={index}>
+                                    <ReItem
+                                        containerStyle={[
+                                            {
+                                                marginBottom: verticalScale(10),
+                                            },
+                                            defStyles.shadowBox,
+                                        ]}
+                                        data={item}
+                                        onPress={() => toggleReInfoModal(item)}
+                                    />
+                                </React.Fragment>
+                            )}
                         />
-                        </React.Fragment>
                     )}
-                />
+                    <REinfo_modal
+                        visible={reInfoModal}
+                        setVisible={() => setReInfoModal((prev) => !prev)}
+                        data={reInfoParam}
+                    />
+                </View>
             </View>
         </View>
     );
@@ -353,6 +406,52 @@ const styles = StyleSheet.create({
     },
     seperator: { height: "60%", width: 1, backgroundColor: "black" },
 });
+const PLACEHOLDER: TokenData[] = [
+    {
+        isSTOs: "Đã phát hành",
+        isManagement: "Đã thuê",
+        id: "1",
+        isValuation: "Đã định giá",
+        fundTokenInfoAddress: "0x7b0ed8dd6834e9b078fba94454d395a4343b04bc",
+        tokenId: "1",
+        tokenName: "'gg'",
+        tokenSymbol: "'gg'",
+        tokenValuations: [
+            {
+                valuation: "3000",
+            },
+            {
+                valuation: "30000000000",
+            },
+        ],
+        address: "123 Main St, Ward 1, District 5, Province A",
+        area: "120 sqm",
+        bathRoom: "2",
+        bedRoom: "3",
+        certificateOfLand: "CERT123",
+        constructionLicense: "LIC123",
+        district: "District 5",
+        expiryDate: "2030-12-31",
+        floor: "5",
+        floorArea: "90 sqm",
+        fundREAddress: "0xFundAddress1",
+        imagesList: ["image1.jpg", "image2.jpg"],
+        livingRoom: "1",
+        parcelOfLand: "Parcel 45",
+        province: "Province A",
+        rEChart: "chart1.png",
+        reManagements: ["management1", "management2"],
+        reType: "Apartment",
+        reValuations: ["valuation1", "valuation2"],
+        registrationDeclaration: "REG123",
+        street: "123 Main St",
+        testRecords: "test1.pdf",
+        useForm: "Residential",
+        useSource: "Ownership",
+        userTarget: "Family",
+        ward: "Ward 1",
+    },
+];
 
 const DATA: RealEstateItemData[] = [
     {

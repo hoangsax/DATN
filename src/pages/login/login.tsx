@@ -1,4 +1,4 @@
-import client, { GET_REDATA } from "@/client";
+import client, { GET_RE_INFO, GET_REDATA, localClient } from "@/client";
 import { Button } from "@/components/button";
 import { InputForm, InputPassword } from "@/components/input";
 import { UIText } from "@/components/text";
@@ -26,9 +26,9 @@ export const LoginScreen = () => {
             console.error("Error fetching data: ", error);
         }
     }
-    useEffect(() => {
-
-    })
+    const [data, setData] = useState();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState();
     const handleOnPress = () => {
         dispatch(logtemp())
     };

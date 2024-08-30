@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SelectableOptions } from "./type";
 import { useAppSelector } from "@/store/hooks";
-import { UIText } from "@/components";
+import { UIText } from "@/components/text";
 
 interface SortingProps {
     name: string;

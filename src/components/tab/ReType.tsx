@@ -10,6 +10,10 @@ interface ReTypeProps {
     value: string;
 }
 
+const re_typ_en = ["Villa", "House", "Hall", "Estate"];
+
+const re_typ_vi = ["Nhà phố", "Chung cư", "Cao ốc", "Đất nền"];
+
 export const ReType = ({ value }: ReTypeProps) => {
     const Colors = useSelector((state: RootState) => state.theme.palette);
 
@@ -24,9 +28,15 @@ export const ReType = ({ value }: ReTypeProps) => {
         },
     });
 
+    const typeFinder = (value: string) => {
+        const result = re_typ_vi[re_typ_en.findIndex((item) => item == value)]
+        if (result) return result
+        else return "Khác"
+    }
+
     return (
         <View style={styles.re_type}>
-            <UIText color={Colors.TEXT_SPE_MAIN} value={value}></UIText>
+            <UIText color={Colors.TEXT_SPE_MAIN} value={typeFinder(value)}></UIText>
         </View>
     );
 };

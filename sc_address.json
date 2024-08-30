@@ -1,0 +1,24 @@
+{
+    "sepolia": {
+        "FundTokenInfo": {
+            "address": ["0xc8EF1fC328D17281c14b3c0eC1C5b45018c0a61A", "0x7b0ed8Dd6834E9b078Fba94454d395A4343B04Bc"],
+            "startBlock": 34445087
+        },
+        "SecurityToken": {
+            "address": "0x99624f710C54ce5f3264D40e5419B725c1A9A165",
+            "startBlock": 34445087
+        },
+        "FundTokenValuation": {
+            "address": [
+                "0xD1d10D048fE5ceF3F966A01f9dF686176D270547"],
+            "ded": [
+                "0xaFD506FF3559DfFDf635E4b41861A53fA9Bceefa"]
+        },
+        "FundSTO": {
+            "address": ["0xCF6147EBE168d8e59FCb1A36eb0bBf344d3Fcd8e", "0xd14b97984477433e31135682bd007de49c3516d8"]
+        },
+        "REFundManagement": {
+            "address": "0x0144c50C4E85aB3bbBE747eb52feeb392D7714c9"
+        }
+    }
+}

@@ -11,7 +11,7 @@ import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import { fontSize, horizontalScale, verticalScale, WIDTH_SCREEN } from "@/utils";
 import { SvgXml } from "react-native-svg";
-import { icons, RealEstateItemData } from "@/constants";
+import { icons, images, RealEstateItemData } from "@/constants";
 import { UIText } from "../text";
 import { Button } from "../button";
 import { defStyles } from "@/constants";
@@ -114,7 +114,7 @@ export const ReCard = React.memo(({ data, onPress, small, onFav }: ReCardProps) 
                 <Image
                     resizeMode="cover"
                     style={styles.img}
-                    source={require("@/assets/images/recard_default.jpg")}
+                    source={images.RECARD_DEFAULLT}
                 />
             </View>
             <View style={styles.bottom}>

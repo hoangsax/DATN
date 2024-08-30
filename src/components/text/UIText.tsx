@@ -24,5 +24,5 @@ export const UIText = ({ color, fSize, value, fWeight, style }: UITextProps) => 
         },
     });
 
-    return <Text style={[styles.text, style]}>{value}</Text>;
+    return <Text style={[styles.text, style, {width: 'auto'}]}>{value}</Text>;
 };

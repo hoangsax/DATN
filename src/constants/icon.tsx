@@ -19,6 +19,12 @@ export const icons = {
     LEASE_ACTIVE: require('@/assets/icons/rent_active').xml,
     MARKETPLACE: require('@/assets/icons/marketplace').xml,
     MARKETPLACE_ACTIVE: require('@/assets/icons/marketplace_active').xml,
+    BEDROOM: require('@/assets/icons/bedroom').xml,
+    AREA: require('@/assets/icons/area').xml,
+    BATHROOM: require('@/assets/icons/bathroom').xml,
+    EMAIL: require('@/assets/icons/email').xml,
+    PHONE: require('@/assets/icons/phone').xml,
+    
     //ComponentIcons
 
     HEART: require('@/assets/icons/heart').xml,
