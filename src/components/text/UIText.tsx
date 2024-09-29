@@ -1,5 +1,5 @@
 import { RootState } from "@/store";
-import { fontSize } from "@/utils";
+import { fontSize } from "@/utils/scaling";
 import React from "react";
 import { StyleProp, StyleSheet, Text, TextStyle } from "react-native";
 import { useSelector } from "react-redux";

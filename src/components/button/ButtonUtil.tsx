@@ -12,6 +12,7 @@ interface ButtonUtilProps {
     icon?: IconType;
     title: string;
     color?: string;
+    align?: 'center' | 'flex-end' | 'flex-start';
     backgroundColor?: string;
     onPress?: () => void;
 }
@@ -19,7 +20,7 @@ interface ButtonUtilProps {
 export const ButtonUtil = ( props : ButtonUtilProps) => {
 
     const Colors = useSelector((state: RootState) => state.theme.palette)
-    const {icon, title,color,backgroundColor,onPress} = props
+    const {icon, title,color,backgroundColor,onPress, align} = props
     const styles = StyleSheet.create({
         container: {
             paddingHorizontal: horizontalScale(13),
@@ -34,8 +35,8 @@ export const ButtonUtil = ( props : ButtonUtilProps) => {
     })
 
     return (
-        <TouchableOpacity style={styles.container} onPress={onPress}>
-            {icon && <SvgXml xml={icons.SORT} style={{height: heights.BUTTON_ICON, width: heights.BUTTON_ICON,}} /> }
+        <TouchableOpacity style={[styles.container,{justifyContent: align? align : 'flex-start'}]} onPress={onPress}>
+            {icon && <SvgXml xml={icons.SORT} style={{height: heights.BUTTON_ICON, width: heights.BUTTON_ICON}} /> }
             <UIText value={title} />
         </TouchableOpacity>
     )

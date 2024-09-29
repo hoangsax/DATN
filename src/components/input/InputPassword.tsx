@@ -30,7 +30,7 @@ export const InputPassword = (props: InputPasswordProps) => {
             <TextInput
                 style={[styles.input, { color: colors.TEXT_STD_MAIN }]}
                 value={value}
-                placeholder={"Password"}
+                placeholder={"Mật khẩu"}
                 placeholderTextColor={colors.TEXT_STD_SUB}
                 secureTextEntry={hidden}
                 onChangeText={onChangeText}

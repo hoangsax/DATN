@@ -2,8 +2,6 @@ export const common = {
     ERROR : '#F23356',
     BORDER_FORM_MAIN : '#5C5C5C',
     BORDER_ICON : '#FFFFFF',
-    BG_CARD_MAIN: "#99F3BD",
-    BG_TAB_FIELD: "#C7C8CC",
     ICON_BT_SUB : '#3C94FF',
     ICON_BT_MAIN : '#246BFD',
     ICON_STD_MAIN : '#6A6A6A',

@@ -8,7 +8,7 @@ import { UIText } from "../text";
 import { IconType } from "@/constants";
 
 interface ButtonLoginProps {
-    icon: IconType;
+    icon?: IconType;
     title: string;
     onPress?: () => void;
 }
@@ -29,7 +29,7 @@ export const ButtonLogin = (props: ButtonLoginProps) => {
             onPress={onPress}
         >
             <View style={styles.Items}>
-                <SvgXml xml={icon} />
+                {icon && <SvgXml xml={icon} />}
                 <UIText value={title} style={styles.textTitle} />
             </View>
         </TouchableOpacity>

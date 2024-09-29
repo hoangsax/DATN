@@ -20,33 +20,31 @@ import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
 
-type LoginNavigationProps = StackNavigationProp<AuthParamList, "Login">;
+type RegisterNavigationProps = StackNavigationProp<AuthParamList, "Register">;
 
-export const LoginScreen = () => {
-    const navigation = useNavigation<LoginNavigationProps>()
-    const [username, setEmail] = useState<string>("lethanh789");
-    const [password, setPassword] = useState<string>("password789");
-    const [loginError, setLoginError] = useState<string | null>()
-    const Colors = useSelector((state: RootState) => state.theme.palette);
+export const RegisterScreen = () => {
+    const navigation = useNavigation<RegisterNavigationProps>()
+    const [username, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [password2, setPassword2] = useState<string>("");
+    const [inputError, setInputError] = useState<string | null>()
+    const colors = useSelector((state: RootState) => state.theme.palette);
     const auth = useSelector((state: RootState) => state.auth);
     const dispatch = useAppDispatch();
     const [loginUser, { data, loading, error }] = useMutation(LOGIN_USER);
     const handleOnPress = async () => {
-        setLoginError(null)
         if (username.length == 0) {
             alert("Vui lòng nhập tài khoản");
             return;
         }
-        if (password.length == 0) {
-            alert("Vui lòng nhập mật khẩu");
+        if (password != password2) {
+            alert("Mật khẩu không trùng khớp");
             return;
         }
-        try {
-            const respone = await loginUser({
-                variables: { username, password },
-            });
-        } catch (error) {
-            setLoginError("Sai tài khoản hoặc mật khẩu")
+        else {
+            if (password.length < 8) {
+                alert("Mật khẩu cần có độ dài từ 8 trở lên")
+            }
         }
     };
 
@@ -57,7 +55,7 @@ export const LoginScreen = () => {
     }, [data]);
 
     return (
-        <View style={[styles.container, {backgroundColor: Colors.MAIN}]}>
+        <View style={styles.container}>
             <View style={styles.imgWrapper}>
                 <SvgXml xml={icons.LOGO} style={styles.img} />
             </View>
@@ -86,12 +84,23 @@ export const LoginScreen = () => {
                         onChangeText={(value) => setPassword(value)}
                     />
                 </View>
+                <View style={styles.formGroup}>
+                    <UIText
+                        value="Nhập lại mật khẩu"
+                        fWeight={weight.semibold}
+                        fSize={14}
+                    />
+                    <InputPassword
+                        value={password2}
+                        onChangeText={(value) => setPassword2(value)}
+                    />
+                </View>
                 <View style={styles.buttonGroup}>
                     {loading && (
                         <ActivityIndicator size="large" color="#0000ff" />
                     )}
-                    {loginError && (
-                        <UIText value={loginError} color={Colors.ERROR} />
+                    {auth.error && (
+                        <UIText value={auth.error} color={colors.ERROR} />
                     )}
                     <Button.Primary
                         title="Tiếp tục"
@@ -102,7 +111,7 @@ export const LoginScreen = () => {
                 <View style={styles.or}>
                     <View
                         style={{
-                            backgroundColor: Colors.BORDER_FORM_MAIN,
+                            backgroundColor: colors.BORDER_FORM_MAIN,
                             height: 1,
                             flex: 4,
                         }}
@@ -118,7 +127,7 @@ export const LoginScreen = () => {
                     </View>
                     <View
                         style={{
-                            backgroundColor: Colors.BORDER_FORM_MAIN,
+                            backgroundColor: colors.BORDER_FORM_MAIN,
                             height: 1,
                             flex: 4,
                         }}
@@ -129,7 +138,7 @@ export const LoginScreen = () => {
                         title="Tiếp tục với Google"
                         icon={icons.GOOGLE}
                     />
-                    <Button.Login title="Đăng ký" onPress={() => navigation.navigate("Register")} />
+                    <Button.Login title="Đăng nhập" onPress={() => navigation.navigate("Login")} />
                 </View>
             </View>
         </View>
@@ -175,4 +184,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default LoginScreen;
+export default RegisterScreen;

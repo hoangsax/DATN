@@ -47,7 +47,7 @@ export const SelectOptions = ({
                     >
                         <UIText
                             style={styles.modalTitle}
-                            value={`${name} By:`}
+                            value={`${name} theo:`}
                         />
                         <FlatList
                             data={options}

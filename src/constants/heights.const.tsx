@@ -1,4 +1,4 @@
-import { verticalScale } from "@/utils";
+import { horizontalScale, verticalScale } from "@/utils";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 
 const Bheight = getStatusBarHeight();
@@ -7,4 +7,5 @@ export const heights = {
     BUTTON_ICON: 30,
     STATUS_BAR: Bheight,
     HEADER_HEIGHT: verticalScale(50) * 1.5,
+    ICONSMALL: horizontalScale(20),
 }

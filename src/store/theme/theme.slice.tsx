@@ -8,7 +8,7 @@ interface ThemeState {
 
 const initialState: ThemeState = {
     theme: "light",
-    palette: LightTheme,
+    palette: DarkTheme,
 };
 
 const themeSlice = createSlice({

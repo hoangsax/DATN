@@ -5,7 +5,7 @@ import client, {
     localClient,
 } from "@/client";
 import { TokenInfo, REInfoType, STOInfo } from "@/constants";
-import { refreshData } from "@/store/fetch";
+import { refreshData, setState } from "@/store/fetch";
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { useDispatch } from "react-redux";
@@ -20,11 +20,9 @@ export const FetchDataComponent = () => {
     const [stoinfos, setStoInfos] = useState<STOInfo[]>([]);
 
     const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string>("");
 
     const dispatch = useDispatch();
-
     useEffect(() => {
         // Perform the query manually using client.query
         const fetchREInfo = async () => {
@@ -54,7 +52,6 @@ export const FetchDataComponent = () => {
         };
 
         const fetchSTOinfo = async () => {
-            setLoading(true); // Start loading
             setError(""); // Reset any previous errors
 
             try {
@@ -66,7 +63,7 @@ export const FetchDataComponent = () => {
             } catch (err) {
                 setError(error + (err as Error).message); // Catch and set any errors
             } finally {
-                setLoading(false);
+
             }
         };
 
@@ -76,6 +73,7 @@ export const FetchDataComponent = () => {
     }, []);
 
     useEffect(() => {
+        dispatch(setState(true))
         dispatch(
             refreshData(
                 graphData.slice(1, -1).map((graph) => {
@@ -93,6 +91,8 @@ export const FetchDataComponent = () => {
                 })
             )
         );
+        
+        dispatch(setState(false))
     }, [graphData, mongoData, stoinfos, data]);
 
     return <View></View>;

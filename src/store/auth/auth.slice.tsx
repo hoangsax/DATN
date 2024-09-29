@@ -1,16 +1,33 @@
-import client from "@/client";
-import { LOGIN_MUTATION } from "@/client/mutation";
+import client, { localClient } from "@/client";
+import { LOGIN_MUTATION, LOGIN_USER } from "@/client/mutation";
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import localStorage from 'react-native-expo-localstorage'
-interface User {
-    id: string;
-    email: string;
-    name: string;
+import localStorage from "react-native-expo-localstorage";
+import { UriProps } from "react-native-svg";
+export interface User {
+    username: string;
+    password: string;
+    mnemonic: string;
+    walletAddress: string;
+    firstName: string;
+    lastName: string;
+    avatar: string;
+    gender: string;
+    dateOfBirth: string;
+    fullAddress: string;
+    gmail: string;
+    zipCode: string;
+    city: string;
+    phoneNumber: string;
+    cccd: CCCD;
+    role: string;
 }
-
+interface CCCD {
+    number: string;
+    createdDate: string;
+    createdLocation: string;
+}
 interface LoginResponse {
-    token: string,
-    user: User
+    user: User;
 }
 
 interface LoginParams {
@@ -38,70 +55,67 @@ const initialState: authState = {
     error: null,
 };
 
-const login = createAsyncThunk<LoginResponse, LoginParams, {rejectValue: string}>(
-    "auth/login",
-    async ({email, password}, ThunkAPI) => {
-        try {
-            const response = await client.mutate({
-                mutation: LOGIN_MUTATION,
-                variables: {
-                    email,
-                    password
-                }
-            });
+// const login = createAsyncThunk<LoginResponse, LoginParams, {rejectValue: string}>(
+//     "auth/login",
+//     async ({email, password}, ThunkAPI) => {
+//         try {
+//             const response = await localClient.mutate({
+//                 mutation: LOGIN_USER,
+//                 variables: {
+//                     email,
+//                     password
+//                 }
+//             });
 
-            if (response.data?.login) {
-                return response.data.login;
-            } else {
-                return ThunkAPI.rejectWithValue("Login failed");
-            }
-        } catch (error) {
-            const e = error as ErrorMsg;
-            return ThunkAPI.rejectWithValue(e.message);
-        }
-    }
-);
+//             if (response.data?.loginUser) {
+//                 return response.data.loginUser;
+//             } else {
+//                 return ThunkAPI.rejectWithValue("Login failed");
+//             }
+//         } catch (error) {
+//             const e = error as ErrorMsg;
+//             return ThunkAPI.rejectWithValue(e.message);
+//         }
+//     }
+// );
 
 const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        logtemp: (state) =>{
+        login: (
+            state,
+            action: PayloadAction<User>
+        ) => {
+            state.user = action.payload;
             state.isLogin = true;
-            state.user = {
-                id: "123",
-                email: "123",
-                name: "123",
-            };
         },
         logout: (state) => {
             state.isLogin = false;
             state.user = null;
         },
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(login.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(
-                login.fulfilled,
-                (state, action: PayloadAction<LoginResponse>) => {
-                    state.loading = false;
-                    state.user = action.payload.user
-                    state.token = action.payload.token
-                    localStorage.setItem("token", action.payload.token)
-                    state.isLogin = state.user !== null && state.token !== null;
-                }
-            )
-            .addCase(login.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload as string;
-            });
-    },
+    // extraReducers: (builder) => {
+    //     builder
+    //         .addCase(login.pending, (state) => {
+    //             state.loading = true;
+    //             state.error = null;
+    //         })
+    //         .addCase(
+    //             login.fulfilled,
+    //             (state, action: PayloadAction<LoginResponse>) => {
+    //                 state.loading = false;
+    //                 state.user = action.payload.user
+    //                 state.isLogin = state.user !== null && state.token !== null;
+    //             }
+    //         )
+    //         .addCase(login.rejected, (state, action) => {
+    //             state.loading = false;
+    //             state.error = action.payload as string;
+    //         });
+    // },
 });
 
-export const { logout, logtemp } = authSlice.actions;
-export { login };
+export const { logout, login } = authSlice.actions;
+// export { login };
 export default authSlice.reducer;

@@ -131,7 +131,7 @@ export const ReCard = React.memo(({ data, onPress, small, onFav }: ReCardProps) 
                 </View>
                 <View style={styles.fav}>
                     <Button.Icon
-                        backgroundColor={colors.BG_BTI_SUB}
+                        backgroundColor={colors.BG_CARD_MAIN}
                         icon={icons.SAVED}
                         size={small? 'tiny' : 'small'}
                         radius={20}

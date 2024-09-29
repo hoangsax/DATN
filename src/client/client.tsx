@@ -21,7 +21,8 @@ const authLink = setContext((_, { headers }) => {
     };
 });
 
-const local = "http://172.28.13.181:5000/graphql";
+const local = "http://172.28.13.181:4000/" //Lab;
+const local2 = "http://192.168.137.1:4000/" //ktx;
 const graph =
     "https://api.studio.thegraph.com/query/80646/gnode/version/latest";
 
@@ -31,7 +32,7 @@ const client = new ApolloClient({
 });
 
 const localClient = new ApolloClient({
-    uri: local,
+    uri: local2,
     cache: new InMemoryCache(),
 });
 

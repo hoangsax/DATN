@@ -7,6 +7,7 @@ import { logout } from "@/store/auth";
 import {
     HEIGHT_SCREEN,
     horizontalScale,
+    ProfileStackParamList,
     verticalScale,
     WIDTH_SCREEN,
 } from "@/utils";
@@ -23,6 +24,9 @@ import {
     NativeSyntheticEvent,
     LayoutChangeEvent,
     TouchableHighlight,
+    Modal,
+    StatusBar,
+    ImageBackground,
 } from "react-native";
 import {
     useAnimatedStyle,
@@ -30,13 +34,61 @@ import {
     withTiming,
 } from "react-native-reanimated";
 import { useDispatch, useSelector } from "react-redux";
+import { Info } from "./info";
+import ContactInfoScreen from "./editcontact";
+import { spaces } from "@/constants/space.const";
+import {
+    createStackNavigator,
+    StackNavigationProp,
+} from "@react-navigation/stack";
+import { useNavigation } from "@react-navigation/native";
+import ContactInfo from "./editcontact";
+import SecuritySettingsScreen from "./SecuritySettingsScreen";
+import PasswordSettingsScreen from "./PasswordSettingsScreen";
 
 const NOR_TEXT = 16;
-const TITLE_TEXT = 25;
+const TITLE_TEXT = 20;
 
-export const ProfileScreen = () => {
+const Stack = createStackNavigator<ProfileStackParamList>();
+
+export const ProfileScreen: React.FC = () => {
+    return (
+        <Stack.Navigator
+            initialRouteName="ProfileBotNav"
+            screenOptions={{ headerShown: false }}
+        >
+            <Stack.Screen name="ProfileBotNav" component={ProfileBotNav} />
+            <Stack.Screen name="Info" component={Info} />
+
+            {
+                //subcomponents
+            }
+            <Stack.Screen name="EditContact" component={ContactInfo} />
+            <Stack.Screen
+                name="SecuritySettings"
+                component={SecuritySettingsScreen}
+            />
+            <Stack.Screen
+                name="PasswordSettings"
+                component={PasswordSettingsScreen}
+            />
+        </Stack.Navigator>
+    );
+};
+
+interface ProfileBotNavProps {
+    navigation: (tab: number) => void;
+}
+
+type ProfileBotNavNavigationProp = StackNavigationProp<
+    ProfileStackParamList,
+    "ProfileBotNav"
+>;
+
+const ProfileBotNav = () => {
     const blur = useSharedValue(0);
-    const auth = useSelector((state: RootState) => state.auth);
+    const user = useSelector((state: RootState) => state.auth.user);
+    const navigation = useNavigation<ProfileBotNavNavigationProp>();
     const [componentHeight, setComponentHeight] = useState(0);
     const [showFixedComponent, setShowFixedComponent] = useState(0);
     const Colors = useSelector((state: RootState) => state.theme.palette);
@@ -47,9 +99,10 @@ export const ProfileScreen = () => {
     };
 
     useEffect(() => {
-        blur.value = showFixedComponent > 0
-            ? withTiming(showFixedComponent, { duration: 1000 })
-            : withTiming(0, { duration: 0 });
+        blur.value =
+            showFixedComponent > 0
+                ? withTiming(showFixedComponent, { duration: 1000 })
+                : withTiming(0, { duration: 0 });
     }, [showFixedComponent]);
     const handleLayout = (event: LayoutChangeEvent) => {
         const { height } = event.nativeEvent.layout;
@@ -62,28 +115,53 @@ export const ProfileScreen = () => {
                 contentContainerStyle={styles.scrollContainer}
                 showsVerticalScrollIndicator={false}
             >
-                <View style={[styles.header, defStyles.shadowBox]} onLayout={handleLayout}>
+                <ImageBackground
+                    resizeMode="cover"
+                    source={images.DEFIMG}
+                    style={[styles.header, defStyles.shadowBox]}
+                    onLayout={handleLayout}
+                >
                     <View style={styles.header_top}>
-                        <Image source={images.PROFILE} style={styles.logo} />
-                        <UIText
-                            value={"Placeholder"}
-                            fWeight={"bold"}
-                            fSize={TITLE_TEXT}
+                        <Image
+                            source={user ? { uri: user.avatar } : images.LOGO}
+                            style={[
+                                styles.logo,
+                                { backgroundColor: Colors.MAIN },
+                            ]}
                         />
                         <UIText
-                            value={auth.user?.email}
+                            value={
+                                user
+                                    ? user.lastName + " " + user.firstName
+                                    : "Lỗi đăng nhập"
+                            }
+                            fWeight={"bold"}
+                            fSize={TITLE_TEXT}
+                            color={Colors.BG_MAIN}
+                        />
+                        <UIText
+                            value={user?.phoneNumber}
                             fSize={NOR_TEXT}
                             color={Colors.TEXT_STD_SUB}
                         />
                     </View>
-                    <View style={styles.header_bottom}>
-                        <TouchableOpacity style={styles.bot_button}>
+                    <View
+                        style={[
+                            styles.header_bottom,
+                            { backgroundColor: Colors.BG_MAIN },
+                        ]}
+                    >
+                        <TouchableOpacity
+                            style={styles.bot_button}
+                            onPress={() => navigation.navigate("Info")}
+                        >
                             <UIText
-                                value={"Trang cá nhân"}
+                                value={"Thông tin cá nhân"}
                                 fSize={NOR_TEXT}
                                 fWeight={"bold"}
                             />
                         </TouchableOpacity>
+                        <View style={{height: '80%', width: 1, backgroundColor: Colors.BG_FORM}} />
                         <TouchableOpacity style={styles.bot_button}>
                             <UIText
                                 value={"Lịch sử giao dịch"}
@@ -92,7 +170,7 @@ export const ProfileScreen = () => {
                             />
                         </TouchableOpacity>
                     </View>
-                </View>
+                </ImageBackground>
                 <View style={styles.content}>
                     <UIText
                         value={"Cài đặt"}
@@ -109,7 +187,7 @@ export const ProfileScreen = () => {
                                     borderTopRightRadius: 10,
                                 },
                             ]}
-                            onPress={() => {}}
+                            onPress={() => navigation.navigate("SecuritySettings")}
                         >
                             <UIText
                                 value={"Quản lý tài khoản"}
@@ -131,7 +209,7 @@ export const ProfileScreen = () => {
                         <TouchableHighlight
                             underlayColor={Colors.BG_CARD_MAIN}
                             style={styles.option_button}
-                            onPress={() => {}}
+                            onPress={() => navigation.navigate('SecuritySettings')}
                         >
                             <UIText
                                 value={"Đăng nhập và bảo mật"}
@@ -158,76 +236,12 @@ export const ProfileScreen = () => {
                         </TouchableHighlight>
                     </View>
                 </View>
-                <View style={styles.content}>
-                    <UIText
-                        value={"Tiện ích"}
-                        fWeight={"bold"}
-                        fSize={TITLE_TEXT}
-                    />
-                    <View style={[styles.option_list, defStyles.shadowBox]}>
-                        <TouchableHighlight
-                            underlayColor={Colors.BG_CARD_MAIN}
-                            style={[
-                                styles.option_button,
-                                {
-                                    borderTopLeftRadius: 10,
-                                    borderTopRightRadius: 10,
-                                },
-                            ]}
-                            onPress={() => {}}
-                        >
-                            <UIText
-                                value={"Danh sách chờ"}
-                                fSize={NOR_TEXT}
-                                fWeight={"bold"}
-                            />
-                        </TouchableHighlight>
-                        <TouchableHighlight
-                            underlayColor={Colors.BG_CARD_MAIN}
-                            style={styles.option_button}
-                            onPress={() => {}}
-                        >
-                            <UIText
-                                value={"Quản lý chi tiêu"}
-                                fSize={NOR_TEXT}
-                                fWeight={"bold"}
-                            />
-                        </TouchableHighlight>
-                        <TouchableHighlight
-                            underlayColor={Colors.BG_CARD_MAIN}
-                            style={styles.option_button}
-                            onPress={() => {}}
-                        >
-                            <UIText
-                                value={"PlaceHolder"}
-                                fSize={NOR_TEXT}
-                                fWeight={"bold"}
-                            />
-                        </TouchableHighlight>
-                        <TouchableHighlight
-                            underlayColor={Colors.BG_CARD_MAIN}
-                            style={[
-                                styles.option_button,
-                                {
-                                    borderBottomLeftRadius: 10,
-                                    borderBottomRightRadius: 10,
-                                },
-                            ]}
-                            onPress={() => {}}
-                        >
-                            <UIText
-                                value={"PlaceHolder"}
-                                fSize={NOR_TEXT}
-                                fWeight={"bold"}
-                            />
-                        </TouchableHighlight>
-                    </View>
-                </View>
+
                 <Button.Primary
                     fill={true}
                     title="Logout"
                     onPress={() => dispatch(logout())}
-                />
+                /> 
             </ScrollView>
 
             <Animated.View
@@ -246,7 +260,7 @@ export const ProfileScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: horizontalScale(10),
+        paddingHorizontal: spaces.globalPadding,
         height:
             HEIGHT_SCREEN -
             heights.BOTNAV -
@@ -260,7 +274,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
     },
     header: {
-        backgroundColor: "green",
         width: "100%",
         marginTop: verticalScale(40),
         borderRadius: 10,
@@ -269,14 +282,13 @@ const styles = StyleSheet.create({
     header_top: {
         width: "100%",
         alignItems: "center",
+        paddingBottom: verticalScale(5),
     },
     header_bottom: {
         flexDirection: "row",
         width: "100%",
         alignItems: "center",
         justifyContent: "center",
-        gap: horizontalScale(10),
-        backgroundColor: "blue",
         borderEndStartRadius: 10,
         borderEndEndRadius: 10,
     },
@@ -288,6 +300,8 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 99,
+        borderWidth: 0.5,
+        borderColor: "red",
         marginTop: -30,
     },
     content: {

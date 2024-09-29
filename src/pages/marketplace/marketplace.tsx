@@ -1,5 +1,5 @@
 import { Button, ReCard, SearchBar, UIText } from "@/components";
-import { heights, RealEstateItemData, ReCardData } from "@/constants";
+import { defStyles, heights, icons, RealEstateItemData, ReCardData } from "@/constants";
 import { useAppSelector } from "@/store/hooks";
 import {
     fontSize,
@@ -13,6 +13,10 @@ import {
 import React, { useEffect, useState } from "react";
 import { FlatList, LayoutChangeEvent, StyleSheet, View } from "react-native";
 import { useSelector } from "react-redux";
+import { ManageModal } from "./managemodal";
+import { RootState } from "@/store";
+import { SvgXml } from "react-native-svg";
+import { spaces } from "@/constants/space.const";
 
 interface ButtonListProps {
     setSortOptions: (value: any) => void;
@@ -58,24 +62,24 @@ const ButtonList = React.memo(
         return (
             <View style={[bstyles.container]}>
                 <Button.Util
-                    title="Sort"
+                    title="Sắp xếp"
                     icon="SORT"
                     onPress={handleSortPress}
                 />
                 <SelectOptions
-                    name="Sort"
+                    name="Sắp xếp"
                     options={sortOptions}
                     visible={sortModal}
                     toggleVisible={handleSortPress}
                     setReturnValue={setSortOptions}
                 />
                 <Button.Util
-                    title="Filter"
+                    title="Lọc"
                     icon="FILTER"
                     onPress={handleFilterPress}
                 />
                 <SelectOptions
-                    name="Filter"
+                    name="Lọc"
                     options={filterOptions}
                     visible={filterModal}
                     toggleVisible={handleFilterPress}
@@ -93,29 +97,48 @@ interface ListItemRenderProps {
 
 const ListItemRender = React.memo(
     ({ renderData, height }: ListItemRenderProps) => {
+        const [modalShow, setModalShow] = useState(false);
+        const [modalData, setModalData] = useState(null);
+        const toggleModal = (data: any) => {
+            setModalData(data);
+            setModalShow((prev) => !prev);
+        };
         return (
-            <FlatList
-                contentContainerStyle={{
-                    paddingBottom: verticalScale(10),
-                }}
-                style={{
-                    paddingRight: horizontalScale(20),
-                    height: height,
-                }}
-                data={renderData}
-                numColumns={2}
-                columnWrapperStyle={styles.column}
-                renderItem={({ item, index }) => (
-                    <React.Fragment key={index}>
-                        <ReCard small={true} data={item} />
-                    </React.Fragment>
-                )}
-            />
+            <>
+                <FlatList
+                    contentContainerStyle={{
+                        paddingBottom: verticalScale(10),
+                    }}
+                    style={{
+                        paddingRight: horizontalScale(20),
+                        height: height,
+                    }}
+                    data={renderData}
+                    numColumns={2}
+                    columnWrapperStyle={styles.column}
+                    renderItem={({ item, index }) => (
+                        <React.Fragment key={index}>
+                            <ReCard
+                                small={true}
+                                data={item}
+                                onPress={() => toggleModal(item)}
+                            />
+                        </React.Fragment>
+                    )}
+                />
+
+                <ManageModal
+                    visible={modalShow}
+                    setVisible={() => setModalShow((prev) => !prev)}
+                    data={modalData}
+                />
+            </>
         );
     }
 );
 
 export const MarketPlace = () => {
+    const ReData = useSelector((state:RootState) => state.data.returnData)
     const fSize = fontSize(14);
     const Colors = useAppSelector((state) => state.theme.palette);
     const [ButtonListH, setButtonListH] = useState<number>(0);
@@ -123,7 +146,6 @@ export const MarketPlace = () => {
         const { height } = event.nativeEvent.layout;
         setButtonListH(height);
     };
-
     const [initData, setInitData] = useState<RealEstateItemData[]>(DATA);
     const [renderData, setRenderData] =
         useState<RealEstateItemData[]>(initData);
@@ -153,9 +175,9 @@ export const MarketPlace = () => {
     const FLATLIST_HEIGHT =
         HEIGHT_SCREEN -
         heights.STATUS_BAR -
-        heights.BOTNAV * 2.5 -
-        verticalScale(10) -
-        verticalScale(51) -
+        heights.BOTNAV * 2 -
+        verticalScale(5) -
+        // verticalScale(51) -
         ButtonListH;
 
     useEffect(() => {
@@ -170,12 +192,29 @@ export const MarketPlace = () => {
 
     return (
         <View>
-            <View style={[styles.header, { backgroundColor: Colors.BG_MAIN }]}>
-                <UIText value="Giao dịch" fWeight={"bold"} fSize={fSize + 10} />
+            <View style={[styles.header, defStyles.shadowBox,{ backgroundColor: Colors.MAIN }]}>
+                <View style={{ flex: 1 }}></View>
+                <View
+                    style={{
+                        flex: 1,
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                >
+                    <UIText value="Đã lưu" fSize={18} />
+                </View>
+                <View
+                    style={{
+                        flex: 1,
+                        alignItems: "flex-end",
+                        justifyContent: "center",
+                    }}
+                >
+                    <SvgXml xml={icons.SEARCH} />
+                </View>
             </View>
             <View style={styles.util}>
-                <SearchBar setWidth={"100%"} />
-                <View onLayout={handleLayout}>
+                <View style={{backgroundColor: Colors.MAIN, paddingHorizontal: spaces.globalPadding, marginTop: verticalScale(5)}} onLayout={handleLayout}>
                     <ButtonList
                         setSortOptions={setSortOptions}
                         setFilterOptions={setFilterOptions}
@@ -198,15 +237,14 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        justifyContent: "center",
-        height: heights.BOTNAV * 1.5,
-        paddingHorizontal: horizontalScale(10),
-        marginBottom: verticalScale(10),
+        flexDirection: "row",
+        height: heights.BOTNAV,
+        paddingHorizontal: spaces.globalPadding,
     },
     util: {
-        paddingHorizontal: horizontalScale(10),
     },
     content: {
+        paddingTop: verticalScale(5),
         paddingLeft: horizontalScale(10),
     },
     column: {

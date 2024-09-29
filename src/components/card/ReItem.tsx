@@ -12,7 +12,7 @@ import {
 import { useSelector } from "react-redux";
 import { UIText } from "../text";
 import { SvgXml } from "react-native-svg";
-import { icons } from "@/constants";
+import { defStyles, icons } from "@/constants";
 import { RealEstateItemData } from "@/constants";
 import { ReType } from "../tab/ReType";
 
@@ -30,13 +30,10 @@ export const ReItem = ({ containerStyle, data, onPress }: LongCardProps) => {
     const styles = StyleSheet.create({
         container: {
             borderRadius: 15,
-
-            backgroundColor: Colors.BG_CARD_MAIN,
         },
         imgContainer: {
             height: IMG_HW,
             width: IMG_HW,
-
             borderRadius: 15,
             justifyContent: "center",
             alignItems: "center",
@@ -52,9 +49,11 @@ export const ReItem = ({ containerStyle, data, onPress }: LongCardProps) => {
             // width: ratio
             //     ? ratio * (WIDTH_SCREEN - 2 * horizontalScale(10))
             //     : WIDTH_SCREEN - 2 * horizontalScale(10),
-            borderColor: Colors.BORDER_ICON,
+            borderColor: Colors.BG_CARD_MAIN,
+            borderWidth: 0.5,
             borderRadius: 15,
             gap: 10,
+            backgroundColor: Colors.BG_CARD_MAIN,
             paddingHorizontal: horizontalScale(10),
             paddingVertical: verticalScale(10),
         },
@@ -95,7 +94,7 @@ export const ReItem = ({ containerStyle, data, onPress }: LongCardProps) => {
 
     return (
         <TouchableOpacity
-            style={[styles.container, styles.progress, containerStyle]}
+            style={[styles.container, defStyles.shadowBox, styles.progress, containerStyle]}
             onPress={onPress}
         >
             <ImageBackground

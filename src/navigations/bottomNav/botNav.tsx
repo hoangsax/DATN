@@ -1,3 +1,4 @@
+import React from "react";
 import { icons, screens } from "@/constants";
 import { stacks } from "@/constants";
 import { heights } from "@/constants/heights.const";
@@ -8,7 +9,7 @@ import {
     ProfileScreen,
     MarketPlace,
 } from "@/pages";
-import { HEIGHT_SCREEN, verticalScale } from "@/utils";
+import { BottomTabParamList, HEIGHT_SCREEN, verticalScale } from "@/utils";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SvgXml } from "react-native-svg";
 import ProjectStack from "../projectStack";
@@ -16,10 +17,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { FetchDataComponent } from "@/pages/waitingrelease/utils/fetchingData";
 import { useState } from "react";
-const BotNav = () => {
-    const Tab = createBottomTabNavigator();
-    const iconSize = heights.BUTTON_ICON;
 
+const Tab = createBottomTabNavigator<BottomTabParamList>(); // Use the type for the navigator
+
+const BotNav: React.FC = () => {
+    const iconSize = heights.BUTTON_ICON;
+    const Colors = useSelector((state: RootState) => state.theme.palette)
     return (
         <>
             <FetchDataComponent />
@@ -29,12 +32,13 @@ const BotNav = () => {
                     tabBarShowLabel: false,
                     tabBarStyle: {
                         height: heights.BOTNAV,
+                        backgroundColor: Colors.MAIN
                     },
                 }}
-                initialRouteName={screens.PROJECT}
+                initialRouteName={'Project'}
             >
                 <Tab.Screen
-                    name={screens.HOME}
+                    name="Home"
                     component={HomeScreen}
                     options={{
                         tabBarIcon: ({ focused }) => (
@@ -44,10 +48,11 @@ const BotNav = () => {
                                 height={iconSize}
                             />
                         ),
+                        unmountOnBlur: true,
                     }}
                 />
                 <Tab.Screen
-                    name={screens.PROJECT}
+                    name="Project"
                     component={WaitingRelease}
                     options={{
                         tabBarIcon: ({ focused }) => (
@@ -63,9 +68,8 @@ const BotNav = () => {
                         ),
                     }}
                 />
-
                 <Tab.Screen
-                    name={screens.INVEST}
+                    name="Invest"
                     component={MarketPlace}
                     options={{
                         tabBarIcon: ({ focused }) => (
@@ -79,24 +83,11 @@ const BotNav = () => {
                                 height={iconSize}
                             />
                         ),
-                    }}
-                />
-
-                <Tab.Screen
-                    name={screens.LEASE}
-                    component={Lease}
-                    options={{
-                        tabBarIcon: ({ focused }) => (
-                            <SvgXml
-                                xml={focused ? icons.LEASE_ACTIVE : icons.LEASE}
-                                width={iconSize}
-                                height={iconSize}
-                            />
-                        ),
+                        unmountOnBlur: true,
                     }}
                 />
                 <Tab.Screen
-                    name={stacks.PROFILESTACK}
+                    name="ProfileStack"
                     component={ProfileScreen}
                     options={{
                         tabBarIcon: ({ focused }) => (
@@ -110,6 +101,7 @@ const BotNav = () => {
                                 height={iconSize}
                             />
                         ),
+                        unmountOnBlur: true,
                     }}
                 />
             </Tab.Navigator>

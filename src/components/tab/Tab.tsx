@@ -37,11 +37,11 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         paddingHorizontal: horizontalScale(16),
-        paddingVertical: verticalScale(10),
+        paddingVertical: verticalScale(12),
         borderRadius: 20,
     },
     text: {
-        fontSize: fontSize(15),
+        fontSize: fontSize(14),
         fontWeight: '600'
     },
 });

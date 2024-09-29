@@ -1,7 +1,10 @@
 export const dark = {
-    MAIN : '#151515',
+    MAIN : '#000',
+    MAIN_POP: '#1A1A1A',
     BG_MAIN : '#02C277',
     BG_BT_MAIN : '#02C277',
+    BG_CARD_MAIN: "#40534C",
+    BG_TAB_FIELD: "#C7C8CC",
     BG_BTI_MAIN : '#4A9BFF',
     BG_BTI_SUB : '#1A1A1A',
     BG_TAB_OFF : '#191919',

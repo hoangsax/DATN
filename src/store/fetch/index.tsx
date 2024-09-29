@@ -7,6 +7,7 @@ import client, {
 import { REInfoType, STOInfo, TokenInfo } from "@/constants";
 import { createSlice } from "@reduxjs/toolkit";
 import React, { useEffect, useState } from "react";
+import { UriProps } from "react-native-svg";
 
 interface DataProps {
     reInfos: REInfoType[];
@@ -19,14 +20,14 @@ interface resultReInfo {
 }
 
 interface DataState {
-    returnData: any
+    returnData: any,
+    loading: boolean
 }
 
 const initialState: DataState = {
-    returnData: null
+    returnData: null,
+    loading: false
 }
-
-console.log(initialState.returnData)
 
 const fetchSlice = createSlice({
     name: "theme",
@@ -34,10 +35,13 @@ const fetchSlice = createSlice({
     reducers: {
         refreshData: (state, action) => {
             state.returnData = action.payload
-        }
+        },
+        setState: (state, action) => {
+            state.loading = action.payload
+        },
     },
 });
 
-export const { refreshData } = fetchSlice.actions;
+export const { refreshData, setState } = fetchSlice.actions;
 
 export default fetchSlice.reducer;
